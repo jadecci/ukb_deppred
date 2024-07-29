@@ -1,0 +1,6 @@
+* annex.backend=MD5E
+**/.tsv annex.largefiles=anything
+**/.csv annex.largefiles=anything
+** annex.largefiles=(largerthan=100kb)
+**/.git* annex.largefiles=nothing
+*.py annex.largefiles=nothing
