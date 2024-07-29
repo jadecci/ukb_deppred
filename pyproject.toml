@@ -1,1 +1,42 @@
-.git/annex/objects/vV/wJ/SHA256E-s1059--dc22543651c4ccf357ddd4259c4c61e7710ec028ad5449f0243beec5e1a0c86f.toml/SHA256E-s1059--dc22543651c4ccf357ddd4259c4c61e7710ec028ad5449f0243beec5e1a0c86f.toml
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ukb_deppred"
+authors = [
+    {name = "Jianxiao Wu", email = "j.wu@fz-juelich.de"}
+]
+description = "Depression prediction in UK Biobank"
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">=3.9"
+keywords = ["neuroimaging", "multimodal", "machine learning", "depression"]
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Topic :: Neuroscience :: Neuroimaging",
+]
+dependencies = [
+    "nipype ~= 1.8.5",
+    "datalad ~= 1.1.2",
+    "pandas ~= 2.2.2",
+    "numpy ~= 2.0",
+    "scipy ~= 1.14.0",
+    "scikit-learn ~= 1.5.1",
+]
+dynamic = ["version"]
+
+[project.scripts]
+mpp = "mpp.main:main"
+mfe = "mpp.mfe.main:main"
+mfe_dti = "mpp.mfe.dti:main"
+
+[project.urls]
+repository = "https://github.com/jadecci/ukb_deppred"
+repository-gin = "https://gin.g-node.org/jadecci/ukb_deppred"
+
+[tool.setuptools]
+packages = ["ukb_deppred"]
+
+[tool.setuptools.dynamic]
+version = {attr = "ukb_deppred.VERSION"}

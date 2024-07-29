@@ -1,1 +1,15 @@
-.git/annex/objects/PG/87/SHA256E-s112--fad3f3cfcd7e82ced88813848675415bc86e078cb01a5c046d89ef1d4e728da6/SHA256E-s112--fad3f3cfcd7e82ced88813848675415bc86e078cb01a5c046d89ef1d4e728da6
+# cache
+__pycache__/
+
+# build files
+*.egg-info/
+build/
+
+# MacOS files
+.DS_Store
+
+# Pycharm
+.idea/
+
+# Pyre
+.pyre/
