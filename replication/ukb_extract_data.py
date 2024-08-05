@@ -17,8 +17,8 @@ args = parser.parse_args()
 # Set-ups
 encoding = "ISO-8859-1"
 chunksize = 1000
-if args.out_file.exists():
-    remove(args.out_file)
+if args.out_csv.exists():
+    remove(args.out_csv)
 antidep_code = pd.read_csv(args.antidep_csv, index_col="Drug name")["Code in UKB"].tolist()
 
 # ICD-10 set-up
@@ -139,10 +139,10 @@ for data_df in iterator:
         data_out = data_out[out_cols].dropna(axis="index", how="any")
 
         if not data_out.empty:
-            if args.out_file.exists():
-                data_out.to_csv(args.out_file, mode="a", header=False)
+            if args.out_csv.exists():
+                data_out.to_csv(args.out_csv, mode="a", header=False)
             else:
-                data_out.to_csv(args.out_file)
+                data_out.to_csv(args.out_csv)
 
 # Exclusion Criteria 2: unrelated
 col_types = {"eid": str}
@@ -150,7 +150,7 @@ col_types.update({col: float for col in immune_cols+metabol_cols+morpho_cols+cov
 col_types.update({col: str for col in rsfc_cols})
 col_types.update({col: bool for col in diagn_out_cols})
 data_out = pd.read_csv(
-    args.out_file, usecols=list(col_types.keys()), dtype=col_types, index_col="eid")
+    args.out_csv, usecols=list(col_types.keys()), dtype=col_types, index_col="eid")
 
 sub_out = []
 iterator = pd.read_table(
@@ -161,4 +161,4 @@ for data_df in iterator:
     sub_out.extend(data_unrelated.index)
 
 data_out = data_out.loc[data_out.index.isin(sub_out)]
-data_out.to_csv(args.out_file)
+data_out.to_csv(args.out_csv)
