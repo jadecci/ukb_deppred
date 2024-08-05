@@ -11,15 +11,14 @@ parser.add_argument("raw_tsv", type=Path, help="Absolute path to UKB raw data ts
 parser.add_argument("genetic_tsv", type=Path, help="Absolute path to UKB genetic data tsv")
 parser.add_argument("parser_dir", type=Path, help="Absolute path to ukbb_parser directory")
 parser.add_argument("antidep_csv", type=Path, help="Absolute path to antidepressant code csv")
-parser.add_argument("out_dir", type=Path, help="Absolute path to output directory")
+parser.add_argument("out_csv", type=Path, help="Absolute path to output csv file")
 args = parser.parse_args()
 
 # Set-ups
 encoding = "ISO-8859-1"
 chunksize = 1000
-out_file = Path(args.out_dir, "ukb_extracted_data.csv")
-if out_file.exists():
-    remove(out_file)
+if args.out_file.exists():
+    remove(args.out_file)
 antidep_code = pd.read_csv(args.antidep_csv, index_col="Drug name")["Code in UKB"].tolist()
 
 # ICD-10 set-up
@@ -140,17 +139,18 @@ for data_df in iterator:
         data_out = data_out[out_cols].dropna(axis="index", how="any")
 
         if not data_out.empty:
-            if out_file.exists():
-                data_out.to_csv(out_file, mode="a", header=False)
+            if args.out_file.exists():
+                data_out.to_csv(args.out_file, mode="a", header=False)
             else:
-                data_out.to_csv(out_file)
+                data_out.to_csv(args.out_file)
 
 # Exclusion Criteria 2: unrelated
 col_types = {"eid": str}
 col_types.update({col: float for col in immune_cols+metabol_cols+morpho_cols+covar_cols})
 col_types.update({col: str for col in rsfc_cols})
 col_types.update({col: bool for col in diagn_out_cols})
-data_out = pd.read_csv(out_file, usecols=list(col_types.keys()), dtype=col_types, index_col="eid")
+data_out = pd.read_csv(
+    args.out_file, usecols=list(col_types.keys()), dtype=col_types, index_col="eid")
 
 sub_out = []
 iterator = pd.read_table(
@@ -161,4 +161,4 @@ for data_df in iterator:
     sub_out.extend(data_unrelated.index)
 
 data_out = data_out.loc[data_out.index.isin(sub_out)]
-data_out.to_csv(out_file)
+data_out.to_csv(args.out_file)
