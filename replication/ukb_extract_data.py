@@ -42,10 +42,9 @@ immune_cols = [
 metabol_cols = (
         ["23400-0.0", "23403-0.0"] + [f"23{i}-0.0" for i in range(405, 431)] + ["23437-0.0"]
         + [f"23{i}-0.0" for i in range(442, 447)] + [f"23{i}-0.0" for i in range(449, 454)]
-        + [f"23{i}-0.0" for i in range(456, 460)] + [f"23{i}-0.0" for i in range(456, 460)]
-        + [f"23{i}-0.0" for i in range(464, 468)] + ["23470-0.0"]
-        + [f"23{i}-0.0" for i in range(473, 478)] + [f"23{i}-0.0" for i in range(488, 579)]
-        + [f"23{i}-0.0" for i in range(584, 649)]
+        + [f"23{i}-0.0" for i in range(456, 460)] + [f"23{i}-0.0" for i in range(464, 468)]
+        + ["23470-0.0"] + [f"23{i}-0.0" for i in range(473, 478)]
+        + [f"23{i}-0.0" for i in range(488, 579)] + [f"23{i}-0.0" for i in range(584, 649)]
         + ["30690-0.0", "30740-0.0", "30750-0.0", "30760-0.0", "30860-0.0", "30870-0.0"])
 morpho_cols = [f"27{i}-2.0" for i in range(329, 773)]
 rsfc_cols = ["25751-2.0", "25753-2.0"]
