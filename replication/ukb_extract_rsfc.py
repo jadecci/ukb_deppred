@@ -21,7 +21,7 @@ def fill_pd_row(
 parser = argparse.ArgumentParser(
     description="extract UKB RSFC data for depression prediction",
     formatter_class=lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog, width=100))
-parser.add_argument("ukb_raw_url", type=Path, help="Datalad URL to UKB raw dataset")
+parser.add_argument("ukb_raw_url", type=str, help="Datalad URL to UKB raw dataset")
 parser.add_argument("extracted_csv", type=Path, help="Absolute path to extracted data csv")
 parser.add_argument("work_dir", type=Path, help="Absolute path to working directory")
 parser.add_argument("out_csv", type=Path, help="Absolute path to output csv file")
