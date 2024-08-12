@@ -2,15 +2,29 @@ from os import remove
 from pathlib import Path
 import argparse
 
+import datalad.api as dl
 import pandas as pd
+
+def fill_pd_row(
+        in_pd: pd.DataFrame, sub: str | int, rsfc_type: str, subject_dir: Path) -> pd.DataFrame:
+    rsfc_dir = Path(subject_dir, "ses-2", "non-bids", "fMRI")
+    rsfc_file = Path(rsfc_dir, f"sub-{sub}_ses-2_task-rest_{rsfc_type}_correlation_matrix_d100.txt")
+    if rsfc_file.is_symlink():
+        dl.get(rsfc_file, dataset=subject_dir)
+        rsfc_curr = pd.read_table(rsfc_file, delimiter="\s+", header=None).squeeze()
+        in_pd.loc[sub] = rsfc_curr
+        dl.drop(rsfc_file, reckless="kill", dataset=subject_dir)
+    return in_pd
 
 parser = argparse.ArgumentParser(
     description="extract UKB data for depression prediction",
     formatter_class=lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog, width=100))
 parser.add_argument("raw_tsv", type=Path, help="Absolute path to UKB raw data tsv")
 parser.add_argument("genetic_tsv", type=Path, help="Absolute path to UKB genetic data tsv")
+parser.add_argument("ukb_raw_url", type=str, help="Datalad URL to UKB raw dataset")
 parser.add_argument("parser_dir", type=Path, help="Absolute path to ukbb_parser directory")
 parser.add_argument("antidep_csv", type=Path, help="Absolute path to antidepressant code csv")
+parser.add_argument("work_dir", type=Path, help="Absolute path to working directory")
 parser.add_argument("out_csv", type=Path, help="Absolute path to output csv file")
 args = parser.parse_args()
 
@@ -47,18 +61,17 @@ metabol_cols = (
         + [f"23{i}-0.0" for i in range(488, 579)] + [f"23{i}-0.0" for i in range(584, 649)]
         + ["30690-0.0", "30740-0.0", "30750-0.0", "30760-0.0", "30860-0.0", "30870-0.0"])
 morpho_cols = [f"27{i}-2.0" for i in range(329, 773)]
-rsfc_cols = ["25751-2.0", "25753-2.0"]
 covar_cols = [
     "21003-0.0", "31-0.0", "21000-0.0", "25741-2.0", "26521-2.0", "25000-2.0", "54-0.0",
-    "25756-2.0", "25757-2.0", "25758-2.0", "25759-2.0"]
+    "25756-2.0", "25757-2.0", "25758-2.0", "25759-2.0", "20116-0.0", "1558-0.0", "21001-0.0",
+    "6138-0.0"]
 diagn_out_cols = ["icd10_diagn", "s2023_diagn", "mhq_diagn", "report_diagn", "patient", "control"]
-out_cols = immune_cols + metabol_cols + morpho_cols + rsfc_cols + covar_cols + diagn_out_cols
+out_cols = immune_cols + metabol_cols + morpho_cols + covar_cols + diagn_out_cols
 
 # Data types
 col_types = {"eid": str}
 col_types.update({col: "Int64" for col in sympt_cols+diagn_cols})
 col_types.update({col: float for col in immune_cols+metabol_cols+morpho_cols+covar_cols})
-col_types.update({col: str for col in rsfc_cols})
 
 # Get all columns for multi-column data fields
 diagn_multi_cols = {"41270": [], "20002": [], "20544": [], "20003": []}
@@ -146,7 +159,6 @@ for data_df in iterator:
 # Exclusion Criteria 2: unrelated
 col_types = {"eid": str}
 col_types.update({col: float for col in immune_cols+metabol_cols+morpho_cols+covar_cols})
-col_types.update({col: str for col in rsfc_cols})
 col_types.update({col: bool for col in diagn_out_cols})
 data_out = pd.read_csv(
     args.out_csv, usecols=list(col_types.keys()), dtype=col_types, index_col="eid")
@@ -158,6 +170,23 @@ iterator = pd.read_table(
 for data_df in iterator:
     data_unrelated = data_df.loc[(data_df.index.isin(data_out.index)) & (data_df["22021-0.0"] == 0)]
     sub_out.extend(data_unrelated.index)
-
 data_out = data_out.loc[data_out.index.isin(sub_out)]
+
+# Exclusion Criteria 4: no missing RSFC data
+sub_list = data_out.index.tolist()
+rsfc_full = pd.DataFrame(index=sub_list, columns=range(1485), dtype=float)
+rsfc_part = pd.DataFrame(index=sub_list, columns=range(1485), dtype=float)
+
+root_data_dir = Path(args.work_dir, "ukb_raw")
+dl.install(root_data_dir, source=args.ukb_raw_url)
+for subject in sub_list:
+    sub_dir = Path(root_data_dir, f"sub-{subject}")
+    if sub_dir.exists():
+        dl.get(sub_dir, dataset=root_data_dir, get_data=False)
+        rsfc_full = fill_pd_row(rsfc_full, subject, "full", sub_dir)
+        rsfc_part = fill_pd_row(rsfc_part, subject, "partial", sub_dir)
+dl.remove(dataset=root_data_dir, reckless="kill")
+
+rsfc_all = rsfc_full.join(rsfc_part, lsuffix="_full", rsuffix="_part")
+data_out = data_out.join(rsfc_all).dropna(axis="index", how="any")
 data_out.to_csv(args.out_csv)
