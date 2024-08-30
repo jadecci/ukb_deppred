@@ -88,7 +88,7 @@ def kernel_ridge(
         test_x: np.ndarray | pd.DataFrame,
         test_y: np.ndarray | pd.DataFrame) -> tuple[np.ndarray, np.ndarray, dict]:
     param_grid = {"alpha": np.linspace(0.1, 1, 10), "kernel": ["linear", "rbf", "cosine"]}
-    kr_cv = GridSearchCV(KernelRidge, param_grid=param_grid, scoring="balanced_accuracy")
+    kr_cv = GridSearchCV(KernelRidge(), param_grid=param_grid, scoring="r2")
     kr_cv.fit(train_x, train_y)
     y_pred = kr_cv.predict(test_x)
     auc = roc_auc_score(test_y, y_pred)
