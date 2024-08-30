@@ -3,9 +3,11 @@ from importlib.resources import files
 from pathlib import Path
 import argparse
 
+from nipype.interfaces.utility import IdentityInterface
 import nipype.pipeline as pe
 
-from ukb_deppred.interfaces import CrossValSplit, FeaturewiseModel, PredictionSave
+from ukb_deppred.interfaces import (
+    CrossValSplit, FeaturewiseModel, IntegratedFeaturesSetModel, PredictionCombine, PredictionSave)
 import ukb_deppred
 
 
@@ -15,7 +17,7 @@ def main() -> None:
         formatter_class=lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog, width=100))
     required = parser.add_argument_group("Required arguments")
     required.add_argument(
-        "--in_csv", type=Path, desc="in_csv", required=True, help="Absolute path to input data")
+        "--in_csv", type=Path, dest="in_csv", required=True, help="Absolute path to input data")
     optional = parser.add_argument_group("Optional arguments")
     optional.add_argument(
         "--out_dir", type=Path, dest="out_dir", default=Path.cwd(), help="Output directory")
@@ -26,16 +28,21 @@ def main() -> None:
         help="Configuration file for cross-validation")
     optional.add_argument(
         "--condordag", dest="condordag", action="store_true", help="Submit graph to HTCondor")
+    optional.add_argument(
+        "--multiproc", dest="multiproc", action="store_true", help="Run with multiprocessing")
     config = vars(parser.parse_args())
 
     # Set-up
     config_parse = configparser.ConfigParser()
     config_parse.read(config["config"])
     config.update({option: config_parse["USER"][option] for option in config_parse["USER"]})
-    repeat_iter = ("repeat", list(range(int(config["n_repeats"]))))
-    fold_iter = ("fold", list(range(int(config["n_folds"]))))
-    fw_iter = ("feature_type", [
-        "inflamm", "blood_chem", "nmr", "cs", "ct", "gmv", "rsfc_full", "rsfc_part", "covar"])
+    cv_iter = [
+        ("repeat", list(range(int(config["n_repeats"])))),
+        ("fold", list(range(int(config["n_folds"]))))]
+    fw_iter = [
+        ("feature_type", [
+            "immune", "blood_chem", "nmr", "cs", "ct", "gmv", "rsfc_full", "rsfc_part",
+            "smoking", "alcohol", "bmi", "education"])]
     config["out_dir"].mkdir(parents=True, exist_ok=True)
     config["work_dir"].mkdir(parents=True, exist_ok=True)
 
@@ -46,14 +53,28 @@ def main() -> None:
     deppred_wf.config["execution"]["stop_on_first_crash"] = "true"
 
     cv_split = pe.Node(CrossValSplit(config=config), "cv_split")
-    fw = pe.Node(FeaturewiseModel(config=config), "fw", iterables=[repeat_iter, fold_iter, fw_iter])
+    cv = pe.Node(IdentityInterface(fields=["repeat", "fold"]), "cv", iterables=cv_iter)
+    fw = pe.Node(FeaturewiseModel(config=config), "fw", iterables=fw_iter)
+    fw_combine = pe.JoinNode(
+        PredictionCombine(config=config), "fw_combine", joinsource="fw", joinfield=["results"])
     fw_save = pe.JoinNode(
-        PredictionSave(config=config, model_type="featurewise"), "fw_save", joinsource="fw",
+        PredictionSave(config=config, model_type="featurewise"), "fw_save", joinsource="cv",
         joinfield=["results"])
+    #ifs = pe.JoinNode(
+    #    IntegratedFeaturesSetModel(config=config), "ifs", joinsource="fw", joinfield=["fw_ypred"])
+    #ifs_save = pe.JoinNode(
+    #    PredictionSave(config=config, model_type="integratedfeaturesset"), "ifs_save",
+    #    joinsource="cv", joinfield=["results"])
 
     deppred_wf.connect([
         (cv_split, fw, [("cv_split", "cv_split")]),
-        (fw, fw_save, [("results", "results")])])
+        (cv, fw, [("repeat", "repeat"), ("fold", "fold")]),
+        (fw, fw_combine, [("results", "results")]),
+        (fw_combine, fw_save, [("results", "results")])])
+     #   (cv_split, ifs, [("cv_split", "cv_split")]),
+     #   (cv, ifs, [("repeat", "repeat"), ("fold", "fold")]),
+     #   (fw, ifs, [("fw_ypred", "fw_ypred")]),
+     #   (ifs, ifs_save, [("results", "results")])])
 
     deppred_wf.write_graph()
     if config["condordag"]:
@@ -63,6 +84,8 @@ def main() -> None:
                 "dagman_args": f"-outfile_dir {config['work_dir']} -import_env",
                 "wrapper_cmd": files(ukb_deppred) / "venv_wrapper.sh",
                 "override_specs": "request_memory = 10 GB\nrequest_cpus = 1"})
+    elif config["multiproc"]:
+        deppred_wf.run(plugin="MultiProc")
     else:
         deppred_wf.run()
 

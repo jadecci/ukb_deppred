@@ -1,3 +1,4 @@
+from itertools import product
 from pathlib import Path
 
 from nipype.interfaces.base import BaseInterfaceInputSpec, TraitedSpec, SimpleInterface, traits
@@ -5,7 +6,7 @@ from sklearn.model_selection import RepeatedStratifiedKFold, StratifiedKFold
 import numpy as np
 import pandas as pd
 
-from ukb_deppred.utilities import feature_cols, random_forest, extra_trees, hist_grad_boost
+from ukb_deppred.utilities import feature_cols, conf_reg, elastic_net, kernel_ridge
 
 
 class _CrossValSplitInputSpec(BaseInterfaceInputSpec):
@@ -22,7 +23,7 @@ class CrossValSplit(SimpleInterface):
     output_spec = _CrossValSplitOutputSpec
 
     def _run_interface(self, runtime):
-        cols, _ = feature_cols("cv_split")
+        cols, _, _ = feature_cols("cv_split")
         data = pd.read_csv(self.inputs.config["in_csv"], usecols=list(cols.keys()), dtype=cols)
         self._results["cv_split"] = {}
         n_repeats = int(self.inputs.config["n_repeats"])
@@ -56,7 +57,7 @@ class _FeaturewiseModelInputSpec(BaseInterfaceInputSpec):
 class _FeaturewiseModelOutputSpec(TraitedSpec):
     results = traits.Dict(desc="Prediction results")
     fw_ypred = traits.Dict(desc="Predicted classes")
-    feature_type = traits.Str(mandatory=True, desc="Feature type")
+    feature_type = traits.Str(desc="Feature type")
 
 
 class FeaturewiseModel(SimpleInterface):
@@ -68,42 +69,118 @@ class FeaturewiseModel(SimpleInterface):
         self._results["feature_type"] = self.inputs.feature_type
         key = f"repeat{self.inputs.repeat}_fold{self.inputs.fold}"
         key_out = f"{self.inputs.feature_type}_{key}"
-        cols, x_cols = feature_cols(self.inputs.feature_type)
+        cols, x_cols, conf_cols = feature_cols(self.inputs.feature_type)
         data = pd.read_csv(
             self.inputs.config["in_csv"], usecols=list(cols.keys()), dtype=cols, index_col="eid")
 
         train_ind = self.inputs.cv_split[f"{key}_train"]
         test_ind = self.inputs.cv_split[f"{key}_test"]
-        acc, ypred, tscore, ftime = random_forest(
-            data[x_cols].iloc[train_ind], data["patient"].iloc[train_ind],
-            data[x_cols].iloc[test_ind], data["patient"].iloc[test_ind])
-        self._results["results"] = {
-            f"rf_acc_{key_out}": acc, f"rf_test_ypred_{key_out}": ypred,
-            f"rf_test_score_{key_out}": tscore, f"rf_fit_time_{key_out}": ftime}
+        train_x, test_x = conf_reg(
+            data[x_cols].iloc[train_ind], data[conf_cols].iloc[train_ind],
+            data[x_cols].iloc[test_ind], data[conf_cols].iloc[test_ind])
 
-        acc, ypred, tscore, ftime = extra_trees(
-            data[x_cols].iloc[train_ind], data["patient"].iloc[train_ind],
-            data[x_cols].iloc[test_ind], data["patient"].iloc[test_ind])
+        acc, ypred, l1r, coef = elastic_net(
+            train_x, data["patient"].iloc[train_ind], test_x, data["patient"].iloc[test_ind])
         self._results["results"] = {
-            f"et_acc_{key_out}": acc, f"et_test_ypred_{key_out}": ypred,
-            f"et_test_score_{key_out}": tscore, f"et_fit_time_{key_out}": ftime}
+            f"acc_en_{key_out}": acc, f"ypred_en_{key_out}": ypred, f"l1r_en_{key_out}": l1r,
+            f"coef_en_{key_out}": coef}
 
-        acc, ypred, tscore, ftime = hist_grad_boost(
-            data[x_cols].iloc[train_ind], data["patient"].iloc[train_ind],
-            data[x_cols].iloc[test_ind], data["patient"].iloc[test_ind])
+        acc, ypred, params = kernel_ridge(
+            train_x, data["patient"].iloc[train_ind], test_x, data["patient"].iloc[test_ind])
         self._results["results"] = {
-            f"hgb_acc_{key_out}": acc, f"hgb_test_ypred_{key_out}": ypred,
-            f"hgb_test_score_{key_out}": tscore, f"hgb_fit_time_{key_out}": ftime}
+            f"acc_kr_{key_out}": acc, f"ypred_kr_{key_out}": ypred, f"params_kr_{key_out}": params}
 
-        train_ypred = np.empty(train_ind.shape)
+        #train_ypred = np.empty(train_ind.shape)
         #for inner in range(5):
         #    train_ind_inner = train_ind[self.inputs.cv_split[f"{key}_inner{inner}_train"]]
         #    test_ind_inner = train_ind[self.inputs.cv_split[f"{key}_inner{inner}_test"]]
         #    test_i = self.inputs.cv_split[f"{key}_inner{inner}_test"]
-        #    _, train_ypred[test_i], _, _ = random_forest(
+        #    _, train_ypred[test_i], _, _ = elastic_net(
         #        data[x_cols].iloc[train_ind_inner], data["patient"].iloc[train_ind_inner],
-        #        data[x_cols].iloc[test_ind_inner], data["patient"].iloc[train_ind_inner])
-        self._results["fw_ypred"] = {"train_ypred": train_ypred, "test_ypred": ypred}
+        #        data[x_cols].iloc[test_ind_inner], data["patient"].iloc[test_ind_inner],
+        #        int(self.inputs.config["n_alphas"]))
+        #self._results["fw_ypred"] = {"train_ypred": train_ypred, "test_ypred": ypred}
+
+        return runtime
+
+
+class _IntegratedFeaturesSetModelInputSpec(BaseInterfaceInputSpec):
+    config = traits.Dict(mandatory=True, desc="Workflow configurations")
+    cv_split = traits.Dict(mandatory=True, dtype=list, desc="CV indices for each fold")
+    repeat = traits.Int(mandatory=True, desc="Current repeat")
+    fold = traits.Int(mandatory=True, desc="Current fold in the repeat")
+    fw_ypred = traits.List(dtype=dict, mandatory=True, desc="Predicted classes")
+
+
+class _IntegratedFeaturesSetModelOutputSpec(TraitedSpec):
+    results = traits.Dict(desc="Prediction results")
+
+
+class IntegratedFeaturesSetModel(SimpleInterface):
+    """Train and test integrated features set models"""
+    input_spec = _IntegratedFeaturesSetModelInputSpec
+    output_spec = _IntegratedFeaturesSetModelOutputSpec
+
+    def _extract_data(
+            self, sub_ind: list, key: str) -> tuple[np.ndarray, pd.DataFrame, pd.DataFrame]:
+        cols, x_cols, conf_cols = feature_cols("conf")
+        data = pd.read_csv(
+            self.inputs.config["in_csv"], usecols=list(cols.keys()), dtype=cols, index_col="eid")
+        y = data["patient"].iloc[sub_ind]
+        x = np.empty((len(sub_ind), len(self.inputs.fw_ypred)))
+        for feature_i, fw_ypred in enumerate(self.inputs.fw_ypred):
+            x[:, feature_i] = fw_ypred[key]
+        return x, y, data
+
+    def _run_interface(self, runtime):
+        key = f"repeat{self.inputs.repeat}_fold{self.inputs.fold}"
+        train_ind = self.inputs.cv_split[f"{key}_train"]
+        test_ind = self.inputs.cv_split[f"{key}_test"]
+        train_x, train_y, train_conf = self._extract_data(train_ind, "train_ypred")
+        test_x, test_y, test_conf = self._extract_data(test_ind, "test_ypred")
+
+        train_x_resid, test_x_resid = conf_reg(train_x, train_conf, test_x, test_conf)
+        acc, ypred, l1r, coef = elastic_net(
+            train_x_resid, train_y, test_x_resid, test_y, int(self.inputs.config["n_alphas"]))
+        self._results["results"] = {
+            f"acc_all_{key}": acc, f"ypred_all_{key}": ypred, f"l1r_all_{key}": l1r,
+            f"coef_all_{key}": coef}
+
+        feature_groups = {"inflamm": [0, 1, 2], "morpho": [3, 4, 5], "rsfc": [6, 7]}
+        covar_groups = {"life": [8, 9], "bmi": [10], "educ": [11]}
+        for group in product(feature_groups, covar_groups):
+            group_ind = feature_groups[group[0]] + covar_groups[group[1]]
+            train_x_group = train_x[:, group_ind]
+            test_x_group = test_x[:, group_ind]
+            train_x_resid, test_x_resid = conf_reg(
+                train_x_group, train_conf, test_x_group, test_conf)
+            acc, ypred, l1r, coef = elastic_net(
+                train_x_resid, train_y, test_x_resid, test_y, int(self.inputs.config["n_alphas"]))
+            self._results["results"].update({
+                f"acc_{group}_{key}": acc, f"ypred_{group}_{key}": ypred, f"l1r_{group}_{key}": l1r,
+                f"coef_{group}_{key}": coef})
+        return runtime
+
+
+class _PredictionCombineInputSpec(BaseInterfaceInputSpec):
+    config = traits.Dict(mandatory=True, desc="Workflow configurations")
+    results = traits.List(dtype=dict, desc="accuracy results")
+
+
+class _PredictionCombineOutputSpec(TraitedSpec):
+    results = traits.Dict(desc="accuracy results")
+
+
+class PredictionCombine(SimpleInterface):
+    """Combine prediction results across features"""
+    input_spec = _PredictionCombineInputSpec
+    output_spec = _PredictionCombineOutputSpec
+
+    def _run_interface(self, runtime):
+        self._results["results"] = {}
+        for results in self.inputs.results:
+            for key, val in results.items():
+                self._results["results"].update({key: val})
 
         return runtime
 
