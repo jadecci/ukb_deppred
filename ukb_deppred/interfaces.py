@@ -6,7 +6,7 @@ from sklearn.model_selection import RepeatedStratifiedKFold, StratifiedKFold
 import numpy as np
 import pandas as pd
 
-from ukb_deppred.utilities import feature_cols, conf_reg, elastic_net, kernel_ridge
+from ukb_deppred.utilities import feature_cols, conf_reg, elastic_net, feature_covar_groups
 
 
 class _CrossValSplitInputSpec(BaseInterfaceInputSpec):
@@ -69,7 +69,7 @@ class FeaturewiseModel(SimpleInterface):
         self._results["feature_type"] = self.inputs.feature_type
         key = f"repeat{self.inputs.repeat}_fold{self.inputs.fold}"
         key_out = f"{self.inputs.feature_type}_{key}"
-        cols, x_cols, conf_cols = feature_cols(self.inputs.feature_type)
+        cols, x_cols, conf_cols = feature_cols(self.inputs.feature_type, include_conf=True)
         data = pd.read_csv(
             self.inputs.config["in_csv"], usecols=list(cols.keys()), dtype=cols, index_col="eid")
 
@@ -82,29 +82,65 @@ class FeaturewiseModel(SimpleInterface):
         acc, ypred, l1r, coef = elastic_net(
             train_x, data["patient"].iloc[train_ind], test_x, data["patient"].iloc[test_ind])
         self._results["results"] = {
-            f"acc_en_{key_out}": acc, f"ypred_en_{key_out}": ypred, f"l1r_en_{key_out}": l1r,
-            f"coef_en_{key_out}": coef}
+            f"acc_{key_out}": acc, f"ypred_{key_out}": ypred, f"l1r_{key_out}": l1r,
+            f"coef_{key_out}": coef}
 
-        acc, ypred, params = kernel_ridge(
-            train_x, data["patient"].iloc[train_ind], test_x, data["patient"].iloc[test_ind])
-        self._results["results"] = {
-            f"acc_kr_{key_out}": acc, f"ypred_kr_{key_out}": ypred, f"params_kr_{key_out}": params}
-
-        #train_ypred = np.empty(train_ind.shape)
-        #for inner in range(5):
-        #    train_ind_inner = train_ind[self.inputs.cv_split[f"{key}_inner{inner}_train"]]
-        #    test_ind_inner = train_ind[self.inputs.cv_split[f"{key}_inner{inner}_test"]]
-        #    test_i = self.inputs.cv_split[f"{key}_inner{inner}_test"]
-        #    _, train_ypred[test_i], _, _ = elastic_net(
-        #        data[x_cols].iloc[train_ind_inner], data["patient"].iloc[train_ind_inner],
-        #        data[x_cols].iloc[test_ind_inner], data["patient"].iloc[test_ind_inner],
-        #        int(self.inputs.config["n_alphas"]))
-        #self._results["fw_ypred"] = {"train_ypred": train_ypred, "test_ypred": ypred}
+        train_ypred = np.empty(train_ind.shape)
+        for inner in range(5):
+            train_ind_inner = train_ind[self.inputs.cv_split[f"{key}_inner{inner}_train"]]
+            test_ind_inner = train_ind[self.inputs.cv_split[f"{key}_inner{inner}_test"]]
+            train_x_inner, test_x_inner = conf_reg(
+                data[x_cols].iloc[train_ind_inner], data[conf_cols].iloc[train_ind_inner],
+                data[x_cols].iloc[test_ind_inner], data[conf_cols].iloc[test_ind_inner])
+            test_i = self.inputs.cv_split[f"{key}_inner{inner}_test"]
+            acc, ypred, _, _ = elastic_net(
+                train_x_inner, data["patient"].iloc[train_ind_inner], test_x_inner,
+                data["patient"].iloc[test_ind_inner])
+            train_ypred[test_i] = np.array(ypred > acc[-1]).astype(float)
+        self._results["fw_ypred"] = {"train_ypred": train_ypred, "test_ypred": ypred}
 
         return runtime
 
 
-class _IntegratedFeaturesSetModelInputSpec(BaseInterfaceInputSpec):
+class _CombinedFeaturesModelInputSpec(BaseInterfaceInputSpec):
+    config = traits.Dict(mandatory=True, desc="Workflow configurations")
+    cv_split = traits.Dict(mandatory=True, dtype=list, desc="CV indices for each fold")
+    repeat = traits.Int(mandatory=True, desc="Current repeat")
+    fold = traits.Int(mandatory=True, desc="Current fold in the repeat")
+
+
+class _CombinedFeaturesModelOutputSpec(TraitedSpec):
+    results = traits.Dict(desc="Prediction results")
+
+
+class CombinedFeaturesModel(SimpleInterface):
+    """Train and test combined-features models"""
+    input_spec = _CombinedFeaturesModelInputSpec
+    output_spec = _CombinedFeaturesModelOutputSpec
+
+    def _run_interface(self, runtime):
+        key = f"repeat{self.inputs.repeat}_fold{self.inputs.fold}"
+        train_ind = self.inputs.cv_split[f"{key}_train"]
+        test_ind = self.inputs.cv_split[f"{key}_test"]
+
+        group_names, _ = feature_covar_groups()
+        for group in group_names:
+            cols, x_cols, conf_cols = feature_cols(group, include_conf=True, group_feature=True)
+            data = pd.read_csv(
+                self.inputs.config["in_csv"], usecols=list(cols.keys()), dtype=cols,
+                index_col="eid")
+            train_x, test_x = conf_reg(
+                data[x_cols].iloc[train_ind], data[conf_cols].iloc[train_ind],
+                data[x_cols].iloc[test_ind], data[conf_cols].iloc[test_ind])
+            acc, ypred, l1r, coef = elastic_net(
+                train_x, data["patient"].iloc[train_ind], test_x, data["patient"].iloc[test_ind])
+            self._results["results"].update({
+                f"acc_{group}_{key}": acc, f"ypred_{group}_{key}": ypred, f"l1r_{group}_{key}": l1r,
+                f"coef_{group}_{key}": coef})
+        return runtime
+
+
+class _IntegratedFeaturesModelInputSpec(BaseInterfaceInputSpec):
     config = traits.Dict(mandatory=True, desc="Workflow configurations")
     cv_split = traits.Dict(mandatory=True, dtype=list, desc="CV indices for each fold")
     repeat = traits.Int(mandatory=True, desc="Current repeat")
@@ -112,14 +148,14 @@ class _IntegratedFeaturesSetModelInputSpec(BaseInterfaceInputSpec):
     fw_ypred = traits.List(dtype=dict, mandatory=True, desc="Predicted classes")
 
 
-class _IntegratedFeaturesSetModelOutputSpec(TraitedSpec):
+class _IntegratedFeaturesModelOutputSpec(TraitedSpec):
     results = traits.Dict(desc="Prediction results")
 
 
-class IntegratedFeaturesSetModel(SimpleInterface):
-    """Train and test integrated features set models"""
-    input_spec = _IntegratedFeaturesSetModelInputSpec
-    output_spec = _IntegratedFeaturesSetModelOutputSpec
+class IntegratedFeaturesModel(SimpleInterface):
+    """Train and test integrated-features models"""
+    input_spec = _IntegratedFeaturesModelInputSpec
+    output_spec = _IntegratedFeaturesModelOutputSpec
 
     def _extract_data(
             self, sub_ind: list, key: str) -> tuple[np.ndarray, pd.DataFrame, pd.DataFrame]:
@@ -140,22 +176,18 @@ class IntegratedFeaturesSetModel(SimpleInterface):
         test_x, test_y, test_conf = self._extract_data(test_ind, "test_ypred")
 
         train_x_resid, test_x_resid = conf_reg(train_x, train_conf, test_x, test_conf)
-        acc, ypred, l1r, coef = elastic_net(
-            train_x_resid, train_y, test_x_resid, test_y, int(self.inputs.config["n_alphas"]))
+        acc, ypred, l1r, coef = elastic_net(train_x_resid, train_y, test_x_resid, test_y)
         self._results["results"] = {
             f"acc_all_{key}": acc, f"ypred_all_{key}": ypred, f"l1r_all_{key}": l1r,
             f"coef_all_{key}": coef}
 
-        feature_groups = {"inflamm": [0, 1, 2], "morpho": [3, 4, 5], "rsfc": [6, 7]}
-        covar_groups = {"life": [8, 9], "bmi": [10], "educ": [11]}
-        for group in product(feature_groups, covar_groups):
-            group_ind = feature_groups[group[0]] + covar_groups[group[1]]
+        group_names, group_inds = feature_covar_groups()
+        for group, group_ind in zip(group_names, group_inds):
             train_x_group = train_x[:, group_ind]
             test_x_group = test_x[:, group_ind]
             train_x_resid, test_x_resid = conf_reg(
                 train_x_group, train_conf, test_x_group, test_conf)
-            acc, ypred, l1r, coef = elastic_net(
-                train_x_resid, train_y, test_x_resid, test_y, int(self.inputs.config["n_alphas"]))
+            acc, ypred, l1r, coef = elastic_net(train_x_resid, train_y, test_x_resid, test_y)
             self._results["results"].update({
                 f"acc_{group}_{key}": acc, f"ypred_{group}_{key}": ypred, f"l1r_{group}_{key}": l1r,
                 f"coef_{group}_{key}": coef})

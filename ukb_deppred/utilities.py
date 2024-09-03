@@ -1,14 +1,16 @@
-from sklearn.kernel_ridge import KernelRidge
+from itertools import product
+
 from sklearn.linear_model import ElasticNetCV, LinearRegression
 from sklearn.metrics import (
     roc_curve, balanced_accuracy_score, roc_auc_score, f1_score, matthews_corrcoef,
     confusion_matrix)
-from sklearn.model_selection import GridSearchCV
 import numpy as np
 import pandas as pd
 
 
-def feature_cols(feature_type: str) -> tuple[dict, list, list]:
+def feature_cols(
+        feature_type: str, include_conf: bool = False,
+        group_feature: bool = False) -> tuple[dict, list, list]:
     x_cols = {
         "immune": [
             "30000-0.0", "30080-0.0", "30120-0.0", "30130-0.0", "30140-0.0", "30180-0.0",
@@ -30,16 +32,25 @@ def feature_cols(feature_type: str) -> tuple[dict, list, list]:
         "conf": [
             "21003-0.0", "31-0.0", "21000-0.0", "25741-2.0", "26521-2.0", "25000-2.0", "54-0.0",
             "25756-2.0", "25757-2.0", "25758-2.0", "25759-2.0"],
-        "smoking": ["20116-0.0"],
-        "alcohol": ["1558-0.0"],
-        "bmi": ["21001-0.0"],
-        "education": ["6138-0.0"],
-        "cv_split": []}
+        "smoking": ["20116-0.0"], "alcohol": ["1558-0.0"], "bmi": ["21001-0.0"],
+        "educ": ["6138-0.0"], "cv_split": []}
+    x_cols["inflamm"] = x_cols["immune"] + x_cols["blood_chem"] + x_cols["nmr"]
+    x_cols["morpho"] = x_cols["cs"] + x_cols["ct"] + x_cols["gmv"]
+    x_cols["rsfc"] = x_cols["rsfc_full"] + x_cols["rsfc_part"]
+    x_cols["life"] = x_cols["smoking"] + x_cols["alcohol"]
+
     cols = {"eid": str, "patient": bool}
-    cols.update({col: float for col in x_cols[feature_type]})
-    if feature_type != "cv_split":
+    if group_feature:
+        x_col_inds = []
+        for group in feature_type.split("_"):
+            cols.update({col: float for col in x_cols[group]})
+            x_col_inds.extend(x_cols[group])
+    else:
+        cols.update({col: float for col in x_cols[feature_type]})
+        x_col_inds = x_cols[feature_type]
+    if include_conf:
         cols.update({col: float for col in x_cols["conf"]})
-    return cols, x_cols[feature_type], x_cols["conf"]
+    return cols, x_col_inds, x_cols["conf"]
 
 
 def conf_reg(
@@ -74,7 +85,7 @@ def elastic_net(
         test_x: np.ndarray | pd.DataFrame,
         test_y: np.ndarray | pd.DataFrame) -> tuple[np.ndarray, ...]:
     # see https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ElasticNetCV.html # noqa: E501
-    l1_ratio = [.1, .5, .7, .9, .95, .99, 1]
+    l1_ratio = [.1, .5, .7, .9, .95, .99, 1.]
     en = ElasticNetCV(l1_ratio=l1_ratio, n_alphas=100, max_iter=10000, selection="random")
     en.fit(train_x, train_y)
     y_pred = en.predict(test_x)
@@ -83,14 +94,10 @@ def elastic_net(
     return np.array([auc, bacc, f1, mcc, ppv, npv, ythr]), y_pred, en.l1_ratio_, en.coef_
 
 
-def kernel_ridge(
-        train_x: np.ndarray | pd.DataFrame, train_y: np.ndarray | pd.DataFrame,
-        test_x: np.ndarray | pd.DataFrame,
-        test_y: np.ndarray | pd.DataFrame) -> tuple[np.ndarray, np.ndarray, dict]:
-    param_grid = {"alpha": np.linspace(0.1, 1, 10), "kernel": ["linear", "rbf", "cosine"]}
-    kr_cv = GridSearchCV(KernelRidge(), param_grid=param_grid, scoring="r2")
-    kr_cv.fit(train_x, train_y)
-    y_pred = kr_cv.predict(test_x)
-    auc = roc_auc_score(test_y, y_pred)
-    bacc, f1, mcc, ppv, npv, ythr = acc_youden(test_y.astype(float), y_pred)
-    return np.array([auc, bacc, f1, mcc, ppv, npv, ythr]), y_pred, kr_cv.best_params_
+def feature_covar_groups() -> tuple[list, ...]:
+    features = {"inflamm": [0, 1, 2], "morpho": [3, 4, 5], "rsfc": [6, 7]}
+    covariates = {"life": [8, 9], "bmi": [10], "educ": [11]}
+    group_names = [f"{group[0]}_{group[1]}" for group in product(features, covariates)]
+    group_inds = [
+        features[group[0]] + covariates[group[1]] for group in product(features, covariates)]
+    return group_names, group_inds
