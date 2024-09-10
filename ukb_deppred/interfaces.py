@@ -122,6 +122,7 @@ class CombinedFeaturesModel(SimpleInterface):
         key = f"repeat{self.inputs.repeat}_fold{self.inputs.fold}"
         train_ind = self.inputs.cv_split[f"{key}_train"]
         test_ind = self.inputs.cv_split[f"{key}_test"]
+        self._results["results"] = {}
 
         group_names, _ = feature_covar_groups()
         for group in group_names:
@@ -134,9 +135,9 @@ class CombinedFeaturesModel(SimpleInterface):
                 data[x_cols].iloc[test_ind], data[conf_cols].iloc[test_ind])
             acc, ypred, l1r, coef = elastic_net(
                 train_x, data["patient"].iloc[train_ind], test_x, data["patient"].iloc[test_ind])
-            self._results["results"] = {
+            self._results["results"].update({
                 f"acc_{group}_{key}": acc, f"ypred_{group}_{key}": ypred, f"l1r_{group}_{key}": l1r,
-                f"coef_{group}_{key}": coef}
+                f"coef_{group}_{key}": coef})
         return runtime
 
 

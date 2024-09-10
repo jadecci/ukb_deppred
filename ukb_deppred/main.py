@@ -57,7 +57,8 @@ def main() -> None:
     cv = pe.Node(IdentityInterface(fields=["repeat", "fold"]), "cv", iterables=cv_iter)
     fw_model = pe.Node(FeaturewiseModel(config=config), "fw_model", iterables=fw_iter)
     fw_combine = pe.JoinNode(
-        PredictionCombine(config=config), "fw_combine", joinsource="fw_model", joinfield=["results"])
+        PredictionCombine(config=config), "fw_combine", joinsource="fw_model",
+        joinfield=["results"])
     fw_save = pe.JoinNode(
         PredictionSave(config=config, model_type="featurewise"), "fw_save", joinsource="cv",
         joinfield=["results"])
@@ -92,7 +93,7 @@ def main() -> None:
             plugin_args={
                 "dagman_args": f"-outfile_dir {config['work_dir']} -import_env",
                 "wrapper_cmd": files(ukb_deppred) / "venv_wrapper.sh",
-                "override_specs": "request_memory = 10 GB\nrequest_cpus = 1"})
+                "override_specs": "request_cpus = 1"})
     elif config["multiproc"]:
         deppred_wf.run(plugin="MultiProc")
     else:
