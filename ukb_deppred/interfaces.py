@@ -79,12 +79,10 @@ class FeaturewiseModel(SimpleInterface):
             data[x_cols].iloc[train_ind], data[conf_cols].iloc[train_ind],
             data[x_cols].iloc[test_ind], data[conf_cols].iloc[test_ind])
 
-        acc, ypred, l1r, coef = elastic_net(
+        acc, test_ypred, l1r = elastic_net(
             train_x, data["patient"].iloc[train_ind], test_x, data["patient"].iloc[test_ind])
         self._results["results"] = {
-            f"acc_{key_out}": acc, f"ypred_{key_out}": ypred, f"l1r_{key_out}": l1r,
-            f"coef_{key_out}": coef}
-        test_ypred = np.array(ypred > acc[-1]).astype(float)
+            f"acc_{key_out}": acc, f"ypred_{key_out}": test_ypred, f"l1r_{key_out}": l1r}
 
         train_ypred = np.empty(train_ind.shape)
         for inner in range(5):
@@ -94,10 +92,9 @@ class FeaturewiseModel(SimpleInterface):
                 data[x_cols].iloc[train_ind_inner], data[conf_cols].iloc[train_ind_inner],
                 data[x_cols].iloc[test_ind_inner], data[conf_cols].iloc[test_ind_inner])
             test_i = self.inputs.cv_split[f"{key}_inner{inner}_test"]
-            acc, ypred, _, _ = elastic_net(
+            acc, train_ypred[test_i], _ = elastic_net(
                 train_x_inner, data["patient"].iloc[train_ind_inner], test_x_inner,
                 data["patient"].iloc[test_ind_inner])
-            train_ypred[test_i] = np.array(ypred > acc[-1]).astype(float)
         self._results["fw_ypred"] = {"train_ypred": train_ypred, "test_ypred": test_ypred}
 
         return runtime
