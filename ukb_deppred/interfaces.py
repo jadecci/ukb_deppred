@@ -79,11 +79,12 @@ class FeaturewiseModel(SimpleInterface):
             data[x_cols].iloc[train_ind], data[conf_cols].iloc[train_ind],
             data[x_cols].iloc[test_ind], data[conf_cols].iloc[test_ind])
 
-        acc, test_ypred, l1r, coef = elastic_net(
+        acc, ypred, l1r, coef = elastic_net(
             train_x, data["patient"].iloc[train_ind], test_x, data["patient"].iloc[test_ind])
         self._results["results"] = {
-            f"acc_{key_out}": acc, f"ypred_{key_out}": test_ypred, f"l1r_{key_out}": l1r,
+            f"acc_{key_out}": acc, f"ypred_{key_out}": ypred, f"l1r_{key_out}": l1r,
             f"coef_{key_out}": coef}
+        test_ypred = np.array(ypred > acc[-1]).astype(float)
 
         train_ypred = np.empty(train_ind.shape)
         for inner in range(5):
@@ -121,14 +122,14 @@ class IntegratedFeaturesModel(SimpleInterface):
 
     def _extract_data(
             self, sub_ind: list, key: str) -> tuple[np.ndarray, pd.DataFrame, pd.DataFrame]:
-        cols, x_cols, conf_cols = feature_cols("conf")
+        cols, _, conf_cols = feature_cols("conf")
         data = pd.read_csv(
             self.inputs.config["in_csv"], usecols=list(cols.keys()), dtype=cols, index_col="eid")
         y = data["patient"].iloc[sub_ind]
         x = np.empty((len(sub_ind), len(self.inputs.fw_ypred)))
         for feature_i, fw_ypred in enumerate(self.inputs.fw_ypred):
             x[:, feature_i] = fw_ypred[key]
-        return x, y, data
+        return x, y, data[conf_cols].iloc[sub_ind]
 
     def _run_interface(self, runtime):
         key = f"repeat{self.inputs.repeat}_fold{self.inputs.fold}"
