@@ -102,45 +102,6 @@ class FeaturewiseModel(SimpleInterface):
         return runtime
 
 
-class _CombinedFeaturesModelInputSpec(BaseInterfaceInputSpec):
-    config = traits.Dict(mandatory=True, desc="Workflow configurations")
-    cv_split = traits.Dict(mandatory=True, dtype=list, desc="CV indices for each fold")
-    repeat = traits.Int(mandatory=True, desc="Current repeat")
-    fold = traits.Int(mandatory=True, desc="Current fold in the repeat")
-
-
-class _CombinedFeaturesModelOutputSpec(TraitedSpec):
-    results = traits.Dict(desc="Prediction results")
-
-
-class CombinedFeaturesModel(SimpleInterface):
-    """Train and test combined-features models"""
-    input_spec = _CombinedFeaturesModelInputSpec
-    output_spec = _CombinedFeaturesModelOutputSpec
-
-    def _run_interface(self, runtime):
-        key = f"repeat{self.inputs.repeat}_fold{self.inputs.fold}"
-        train_ind = self.inputs.cv_split[f"{key}_train"]
-        test_ind = self.inputs.cv_split[f"{key}_test"]
-        self._results["results"] = {}
-
-        group_names, _ = feature_covar_groups()
-        for group in group_names:
-            cols, x_cols, conf_cols = feature_cols(group, include_conf=True, group_feature=True)
-            data = pd.read_csv(
-                self.inputs.config["in_csv"], usecols=list(cols.keys()), dtype=cols,
-                index_col="eid")
-            train_x, test_x = conf_reg(
-                data[x_cols].iloc[train_ind], data[conf_cols].iloc[train_ind],
-                data[x_cols].iloc[test_ind], data[conf_cols].iloc[test_ind])
-            acc, ypred, l1r, coef = elastic_net(
-                train_x, data["patient"].iloc[train_ind], test_x, data["patient"].iloc[test_ind])
-            self._results["results"].update({
-                f"acc_{group}_{key}": acc, f"ypred_{group}_{key}": ypred, f"l1r_{group}_{key}": l1r,
-                f"coef_{group}_{key}": coef})
-        return runtime
-
-
 class _IntegratedFeaturesModelInputSpec(BaseInterfaceInputSpec):
     config = traits.Dict(mandatory=True, desc="Workflow configurations")
     cv_split = traits.Dict(mandatory=True, dtype=list, desc="CV indices for each fold")

@@ -7,8 +7,7 @@ from nipype.interfaces.utility import IdentityInterface
 import nipype.pipeline as pe
 
 from ukb_deppred.interfaces import (
-    CrossValSplit, FeaturewiseModel, CombinedFeaturesModel, IntegratedFeaturesModel,
-    PredictionCombine, PredictionSave)
+    CrossValSplit, FeaturewiseModel, IntegratedFeaturesModel, PredictionCombine, PredictionSave)
 import ukb_deppred
 
 
@@ -62,10 +61,6 @@ def main() -> None:
     fw_save = pe.JoinNode(
         PredictionSave(config=config, model_type="featurewise"), "fw_save", joinsource="cv",
         joinfield=["results"])
-    cf_model = pe.Node(CombinedFeaturesModel(config=config), "cf_model")
-    cf_save = pe.JoinNode(
-        PredictionSave(config=config, model_type="combinedfeatures"), "cf_save", joinsource="cv",
-        joinfield=["results"])
     if_model = pe.JoinNode(
         IntegratedFeaturesModel(config=config), "if_model", joinsource="fw_model",
         joinfield=["fw_ypred"])
@@ -78,9 +73,6 @@ def main() -> None:
         (cv, fw_model, [("repeat", "repeat"), ("fold", "fold")]),
         (fw_model, fw_combine, [("results", "results")]),
         (fw_combine, fw_save, [("results", "results")]),
-        (cv_split, cf_model, [("cv_split", "cv_split")]),
-        (cv, cf_model, [("repeat", "repeat"), ("fold", "fold")]),
-        (cf_model, cf_save, [("results", "results")]),
         (cv_split, if_model, [("cv_split", "cv_split")]),
         (cv, if_model, [("repeat", "repeat"), ("fold", "fold")]),
         (fw_model, if_model, [("fw_ypred", "fw_ypred")]),
