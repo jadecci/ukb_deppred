@@ -40,9 +40,11 @@ coding19 = pd.read_csv(
     Path(args.parser_dir, "ukbb_parser", "scripts", "data", "icd10_level_map.csv"),
     index_col="Coding")
 icd_selectable = coding19.loc[coding19["Selectable"] == "Yes"].index.tolist()
-icd_include = ["F32", "F33", "F34", "F38", "F39"]
+icd_include = [
+    "F32", "F320", "F321", "F322", "F323", "F328", "F33", "F330", "F331", "F332", "F333", "F334",
+    "F338", "F339", "F34", "F340", "F341", "F348", "F349", "F38", "F380", "F381", "F388", "F39"]
 icd_exclude = [icd for icd in icd_selectable if "F" in icd or "G" in icd]
-icd_exclude.extend([f"I0{i}" for i in range(60, 70) if f"I0{i}" in icd_selectable])
+icd_exclude.extend([f"I{i}" for i in range(600, 700) if f"I{i}" in icd_selectable])
 icd_exclude = [icd for icd in icd_exclude if icd not in icd_include]
 
 # Data fields to read and/or write
