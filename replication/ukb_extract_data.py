@@ -41,8 +41,9 @@ coding19 = pd.read_csv(
     index_col="Coding")
 icd_selectable = coding19.loc[coding19["Selectable"] == "Yes"].index.tolist()
 icd_include = [
-    "F32", "F320", "F321", "F322", "F323", "F328", "F33", "F330", "F331", "F332", "F333", "F334",
-    "F338", "F339", "F34", "F340", "F341", "F348", "F349", "F38", "F380", "F381", "F388", "F39"]
+    "F32", "F320", "F321", "F322", "F323", "F328", "F329", "F33", "F330", "F331", "F332", "F333",
+    "F334", "F338", "F339", "F34", "F340", "F341", "F348", "F349", "F38", "F380", "F381", "F388",
+    "F39"]
 icd_exclude = [icd for icd in icd_selectable if "F" in icd or "G" in icd]
 icd_exclude.extend([f"I{i}" for i in range(600, 700) if f"I{i}" in icd_selectable])
 icd_exclude = [icd for icd in icd_exclude if icd not in icd_include]
@@ -98,13 +99,11 @@ for data_df in iterator:
     if not data_include.empty:
 
         # Patients Criteria 1: ICD-10 diagnosis
-        icds = data_include[diagn_multi_cols["41270"]].values.tolist()
-        icd_diagn = pd.Series(icds, index=data_include.index).isin(icd_include)
-        icd_diagn = icd_diagn.fillna(False)
+        icd_diagn = data_include[diagn_multi_cols["41270"]].isin(icd_include).any(axis="columns")
         data_include = data_include.join(icd_diagn.rename("icd10_diagn"))
 
         # Patients Criteria 2: Smith et al. 2023 diagnosis
-        s2023_diagn = (data_include["20126-0.0"] == 1) & (data_include["20126-0.0"].notna())
+        s2023_diagn = data_include["20126-0.0"].isin([3, 4, 5])
         s2023_diagn = s2023_diagn.fillna(False)
         data_include = data_include.join(s2023_diagn.rename("s2023_diagn"))
 
@@ -119,10 +118,9 @@ for data_df in iterator:
         data_include = data_include.join(mhq_diagn.rename("mhq_diagn"))
 
         # Patients Criteria 4: Self-reported
-        report_cond = data_include[diagn_multi_cols["20002"]].values.tolist()
-        report_mhq = data_include[diagn_multi_cols["20544"]].values.tolist()
-        report_diagn = pd.Series(report_cond, index=data_include.index).isin([1286])
-        report_diagn = report_diagn | pd.Series(report_mhq, index=data_include.index).isin([11])
+        report_cond = data_include[diagn_multi_cols["20002"]].isin([1286]).any(axis="columns")
+        report_mhq = data_include[diagn_multi_cols["20544"]].isin([11]).any(axis="columns")
+        report_diagn = report_cond | report_mhq
         report_diagn = report_diagn.fillna(False)
         data_include = data_include.join(report_diagn.rename("report_diagn"))
 
@@ -139,8 +137,8 @@ for data_df in iterator:
         none_main_sympt = (data_include["20441-0.0"] != 1) & (data_include["20446-0.0"] != 1)
         none_main_sympt = none_main_sympt.fillna(True)
         # Control Criteria 4: no antidepressant use
-        antidep = data_include[diagn_multi_cols["20003"]].values.tolist()
-        none_antidep = ~pd.Series(antidep, index=data_include.index).isin(antidep_code)
+        none_antidep = ~data_include[
+            diagn_multi_cols["20003"]].isin(antidep_code).any(axis="columns")
         none_antidep = none_antidep.fillna(True)
 
         # controls: meeting all of 4 control criteria
@@ -149,7 +147,7 @@ for data_df in iterator:
 
         # Exclusion Criteria 1: patient or control
         data_out = data_include.loc[data_include["patient"] | data_include["control"]]
-        # Exclusion Criteria 3: no missing data
+        # Exclusion Criteria 2: no missing data
         data_out = data_out[out_cols].dropna(axis="index", how="any")
 
         if not data_out.empty:
@@ -158,7 +156,7 @@ for data_df in iterator:
             else:
                 data_out.to_csv(args.out_csv)
 
-# Exclusion Criteria 2: unrelated
+# Exclusion Criteria 3: unrelated
 col_types = {"eid": str}
 col_types.update({col: float for col in immune_cols+metabol_cols+morpho_cols+covar_cols})
 col_types.update({col: bool for col in diagn_out_cols})
