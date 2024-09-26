@@ -88,11 +88,9 @@ def elastic_net(
     l1_ratio = [.1, .5, .7, .9, .95, .99, 1.]
     en = ElasticNetCV(l1_ratio=l1_ratio, n_alphas=100, max_iter=10000, selection="random")
     en.fit(train_x, train_y)
-    ypred = en.predict(test_x)
-    auc = roc_auc_score(test_y, ypred)
-    bacc, f1, mcc, ppv, npv, ythr = acc_youden(test_y.astype(float), ypred)
-    _, _, _, _, _, train_ythr = acc_youden(train_y.astype(float), en.predict(train_x))
-    test_ypred = np.array(ypred > train_ythr).astype(float)
+    test_ypred = en.predict(test_x)
+    auc = roc_auc_score(test_y, test_ypred)
+    bacc, f1, mcc, ppv, npv, ythr = acc_youden(test_y.astype(float), test_ypred)
     return np.array([auc, bacc, f1, mcc, ppv, npv, ythr]), test_ypred, en.l1_ratio_, en.coef_
 
 
