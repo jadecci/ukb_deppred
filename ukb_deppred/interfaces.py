@@ -1,4 +1,3 @@
-from itertools import product
 from pathlib import Path
 
 from nipype.interfaces.base import BaseInterfaceInputSpec, TraitedSpec, SimpleInterface, traits
@@ -23,11 +22,16 @@ class CrossValSplit(SimpleInterface):
     output_spec = _CrossValSplitOutputSpec
 
     def _run_interface(self, runtime):
-        cols, _, _ = feature_cols("cv_split")
-        data = pd.read_csv(self.inputs.config["in_csv"], usecols=list(cols.keys()), dtype=cols)
         self._results["cv_split"] = {}
         n_repeats = int(self.inputs.config["n_repeats"])
         n_folds = int(self.inputs.config["n_folds"])
+
+        cols, _, _ = feature_cols("cv_split", True)
+        data = pd.read_csv(self.inputs.config["in_csv"], usecols=list(cols.keys()), dtype=cols)
+        if self.inputs.config["gender"] == "female":
+            data = data.loc[data["31-0.0"] == 0]
+        elif self.inputs.config["gender"] == "male":
+            data = data.loc[data["31-0.0"] == 1]
 
         rskf = RepeatedStratifiedKFold(
             n_splits=n_folds, n_repeats=n_repeats, random_state=int(self.inputs.config["cv_seed"]))

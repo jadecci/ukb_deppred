@@ -20,6 +20,8 @@ def main() -> None:
         "--in_csv", type=Path, dest="in_csv", required=True, help="Absolute path to input data")
     optional = parser.add_argument_group("Optional arguments")
     optional.add_argument(
+        "--gender", type=str, dest="gender", default="all", help="Use only female, male, or all")
+    optional.add_argument(
         "--out_dir", type=Path, dest="out_dir", default=Path.cwd(), help="Output directory")
     optional.add_argument(
         "--work_dir", type=Path, dest="work_dir", default=Path.cwd(), help="Work directory")
@@ -59,14 +61,14 @@ def main() -> None:
         PredictionCombine(config=config), "fw_combine", joinsource="fw_model",
         joinfield=["results"])
     fw_save = pe.JoinNode(
-        PredictionSave(config=config, model_type="featurewise"), "fw_save", joinsource="cv",
-        joinfield=["results"])
+        PredictionSave(config=config, model_type=f"featurewise_{config['gender']}"), "fw_save",
+        joinsource="cv", joinfield=["results"])
     #if_model = pe.JoinNode(
     #    IntegratedFeaturesModel(config=config), "if_model", joinsource="fw_model",
     #    joinfield=["fw_ypred"])
     #ifs_save = pe.JoinNode(
-    #    PredictionSave(config=config, model_type="integratedfeaturesset"), "ifs_save",
-    #    joinsource="cv", joinfield=["results"])
+    #    PredictionSave(config=config, model_type=f"integratedfeaturesset_{config['gender']}"),
+    #    "ifs_save", joinsource="cv", joinfield=["results"])
 
     deppred_wf.connect([
         (cv_split, fw_model, [("cv_split", "cv_split")]),
