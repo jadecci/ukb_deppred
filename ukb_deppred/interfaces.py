@@ -56,7 +56,7 @@ class _FeaturewiseModelInputSpec(BaseInterfaceInputSpec):
 
 class _FeaturewiseModelOutputSpec(TraitedSpec):
     results = traits.Dict(desc="Prediction results")
-    fw_ypred = traits.Dict(desc="Predicted classes")
+    #fw_ypred = traits.Dict(desc="Predicted classes")
     feature_type = traits.Str(desc="Feature type")
 
 
@@ -85,18 +85,18 @@ class FeaturewiseModel(SimpleInterface):
             f"acc_{key_out}": acc, f"ypred_{key_out}": test_ypred, f"l1r_{key_out}": l1r,
             f"coef_{key_out}": coef}
 
-        train_ypred = np.empty(train_ind.shape)
-        for inner in range(5):
-            train_ind_inner = train_ind[self.inputs.cv_split[f"{key}_inner{inner}_train"]]
-            test_ind_inner = train_ind[self.inputs.cv_split[f"{key}_inner{inner}_test"]]
-            train_x_inner, test_x_inner = conf_reg(
-                data[x_cols].iloc[train_ind_inner], data[conf_cols].iloc[train_ind_inner],
-                data[x_cols].iloc[test_ind_inner], data[conf_cols].iloc[test_ind_inner])
-            test_i = self.inputs.cv_split[f"{key}_inner{inner}_test"]
-            acc, train_ypred[test_i], _, _ = elastic_net(
-                train_x_inner, data["patient"].iloc[train_ind_inner], test_x_inner,
-                data["patient"].iloc[test_ind_inner])
-        self._results["fw_ypred"] = {"train_ypred": train_ypred, "test_ypred": test_ypred}
+        #train_ypred = np.empty(train_ind.shape)
+        #for inner in range(5):
+        #    train_ind_inner = train_ind[self.inputs.cv_split[f"{key}_inner{inner}_train"]]
+        #    test_ind_inner = train_ind[self.inputs.cv_split[f"{key}_inner{inner}_test"]]
+        #    train_x_inner, test_x_inner = conf_reg(
+        #        data[x_cols].iloc[train_ind_inner], data[conf_cols].iloc[train_ind_inner],
+        #        data[x_cols].iloc[test_ind_inner], data[conf_cols].iloc[test_ind_inner])
+        #    test_i = self.inputs.cv_split[f"{key}_inner{inner}_test"]
+        #    acc, train_ypred[test_i], _, _ = elastic_net(
+        #        train_x_inner, data["patient"].iloc[train_ind_inner], test_x_inner,
+        #        data["patient"].iloc[test_ind_inner])
+        #self._results["fw_ypred"] = {"train_ypred": train_ypred, "test_ypred": test_ypred}
 
         return runtime
 

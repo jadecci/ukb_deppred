@@ -61,22 +61,22 @@ def main() -> None:
     fw_save = pe.JoinNode(
         PredictionSave(config=config, model_type="featurewise"), "fw_save", joinsource="cv",
         joinfield=["results"])
-    if_model = pe.JoinNode(
-        IntegratedFeaturesModel(config=config), "if_model", joinsource="fw_model",
-        joinfield=["fw_ypred"])
-    ifs_save = pe.JoinNode(
-        PredictionSave(config=config, model_type="integratedfeaturesset"), "ifs_save",
-        joinsource="cv", joinfield=["results"])
+    #if_model = pe.JoinNode(
+    #    IntegratedFeaturesModel(config=config), "if_model", joinsource="fw_model",
+    #    joinfield=["fw_ypred"])
+    #ifs_save = pe.JoinNode(
+    #    PredictionSave(config=config, model_type="integratedfeaturesset"), "ifs_save",
+    #    joinsource="cv", joinfield=["results"])
 
     deppred_wf.connect([
         (cv_split, fw_model, [("cv_split", "cv_split")]),
         (cv, fw_model, [("repeat", "repeat"), ("fold", "fold")]),
         (fw_model, fw_combine, [("results", "results")]),
-        (fw_combine, fw_save, [("results", "results")]),
-        (cv_split, if_model, [("cv_split", "cv_split")]),
-        (cv, if_model, [("repeat", "repeat"), ("fold", "fold")]),
-        (fw_model, if_model, [("fw_ypred", "fw_ypred")]),
-        (if_model, ifs_save, [("results", "results")])])
+        (fw_combine, fw_save, [("results", "results")]),])
+    #    (cv_split, if_model, [("cv_split", "cv_split")]),
+    #    (cv, if_model, [("repeat", "repeat"), ("fold", "fold")]),
+    #    (fw_model, if_model, [("fw_ypred", "fw_ypred")]),
+    #    (if_model, ifs_save, [("results", "results")])])
 
     deppred_wf.write_graph()
     if config["condordag"]:
