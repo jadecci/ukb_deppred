@@ -29,9 +29,9 @@ class CrossValSplit(SimpleInterface):
         cols, _, _ = feature_cols("cv_split", True)
         data = pd.read_csv(self.inputs.config["in_csv"], usecols=list(cols.keys()), dtype=cols)
         if self.inputs.config["gender"] == "female":
-            data = data.loc[data["31-0.0"] == 0]
+            data = data.loc[data["31-0.0"] == 0].reset_index(drop=True)
         elif self.inputs.config["gender"] == "male":
-            data = data.loc[data["31-0.0"] == 1]
+            data = data.loc[data["31-0.0"] == 1].reset_index(drop=True)
 
         rskf = RepeatedStratifiedKFold(
             n_splits=n_folds, n_repeats=n_repeats, random_state=int(self.inputs.config["cv_seed"]))

@@ -49,7 +49,7 @@ def main() -> None:
     config["work_dir"].mkdir(parents=True, exist_ok=True)
 
     # Workflow
-    deppred_wf = pe.Workflow("ukb_deppred_wf", base_dir=config["work_dir"])
+    deppred_wf = pe.Workflow(f"ukb_deppred_{config['gender']}_wf", base_dir=config["work_dir"])
     deppred_wf.config["execution"]["try_hard_link_datasink"] = "false"
     deppred_wf.config["execution"]["crashfile_format"] = "txt"
     deppred_wf.config["execution"]["stop_on_first_crash"] = "true"
