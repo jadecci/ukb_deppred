@@ -5,6 +5,33 @@ import argparse
 import datalad.api as dl
 import pandas as pd
 
+
+def phy_frailty(data: pd.DataFrame) -> pd.DataFrame:
+    weight_loss = (data["2306-0.0"] == 3).astype("Int64")
+    exhaustion = ((data["120107-0.0"] == -524) | (data["120107-0.0"] == -523)).astype("Int64")
+    walk_speed = (data["924-0.0"] == 1).astype("Int64")
+
+    weakness = pd.Series(index=data.index, dtype="Int64")
+    phy_act = pd.Series(index=data.index, dtype="Int64")
+    for data_i in data.index:
+        bmi_thresh = bmi_threshs[data.loc[data_i, "31-0.0"]]
+        bmi = data.loc[data_i, "21001-0.0"]
+        weak_thresh = weak_threshs[data.loc[data_i, "31-0.0"]]
+        grip_str = (data.loc[data_i, "46-0.0"] + data.loc[data_i, "47-0.0"])
+        for thresh_i in range(len(bmi_thresh) - 1):
+            if bmi_thresh[thresh_i] < bmi <= bmi_thresh[thresh_i + 1]:
+                weakness.loc[data_i] = int((grip_str / 2) <= weak_thresh[thresh_i])
+        activity = data.loc[data_i, "6164-0.0"]
+        light_act_freq = data.loc[data_i, "1011-0.0"]
+        if activity == -7 or (activity == 4 and light_act_freq in [1, 2, 3]):
+            phy_act.loc[data_i] = 1
+
+    frailty = (
+            weight_loss.fillna(0) + exhaustion.fillna(0) + walk_speed.fillna(0) + weakness.fillna(0)
+            + phy_act.fillna(0))
+    return data.join(frailty.rename("frailty"))
+
+
 def fill_pd_row(
         in_pd: pd.DataFrame, sub: str | int, rsfc_type: str, subject_dir: Path) -> pd.DataFrame:
     rsfc_dir = Path(subject_dir, "ses-2", "non-bids", "fMRI")
@@ -15,6 +42,7 @@ def fill_pd_row(
         in_pd.loc[sub] = rsfc_curr
         dl.drop(rsfc_file, reckless="kill", dataset=subject_dir)
     return in_pd
+
 
 parser = argparse.ArgumentParser(
     description="extract UKB data for depression prediction",
@@ -34,6 +62,8 @@ chunksize = 1000
 if args.out_csv.exists():
     remove(args.out_csv)
 antidep_code = pd.read_csv(args.antidep_csv, index_col="Drug name")["Code in UKB"].tolist()
+bmi_threshs = {0: [0, 23, 26, 29, 100], 1: [0, 24, 28, 100]}
+weak_threshs = {0: [17, 17.3, 18, 21], 1: [29, 30, 32]}
 
 # ICD-10 set-up
 coding19 = pd.read_csv(
@@ -64,16 +94,17 @@ metabol_cols = (
         + [f"23{i}-0.0" for i in range(488, 579)] + [f"23{i}-0.0" for i in range(584, 649)]
         + ["30690-0.0", "30740-0.0", "30750-0.0", "30760-0.0", "30860-0.0", "30870-0.0"])
 morpho_cols = [f"27{i}-2.0" for i in range(329, 773)]
+frailty_cols = ["2306-0.0", "120107-0.0", "924-0.0", "46-0.0", "47-0.0", "6164-0.0", "1011-0.0"]
 covar_cols = [
     "21003-0.0", "31-0.0", "21000-0.0", "25741-2.0", "26521-2.0", "25000-2.0", "54-0.0",
     "25756-2.0", "25757-2.0", "25758-2.0", "25759-2.0", "20116-0.0", "1558-0.0", "21001-0.0",
     "6138-0.0"]
 diagn_out_cols = ["icd10_diagn", "s2023_diagn", "mhq_diagn", "report_diagn", "patient", "control"]
-out_cols = immune_cols + metabol_cols + morpho_cols + covar_cols + diagn_out_cols
+out_cols = immune_cols + metabol_cols + morpho_cols + covar_cols + ["frailty"] + diagn_out_cols
 
 # Data types
 col_types = {"eid": str}
-col_types.update({col: "Int64" for col in sympt_cols+diagn_cols})
+col_types.update({col: "Int64" for col in sympt_cols + diagn_cols + frailty_cols})
 col_types.update({col: float for col in immune_cols+metabol_cols+morpho_cols+covar_cols})
 
 # Get all columns for multi-column data fields
@@ -145,6 +176,9 @@ for data_df in iterator:
         control = none_diagn & none_seek & none_main_sympt & none_antidep
         data_include = data_include.join(control.rename("control"))
 
+        # Physical frailty (Jiang et al. 2024)
+        data_include = phy_frailty(data_include)
+
         # Exclusion Criteria 1: patient or control
         data_out = data_include.loc[data_include["patient"] | data_include["control"]]
         # Exclusion Criteria 2: no missing data
@@ -157,7 +191,7 @@ for data_df in iterator:
                 data_out.to_csv(args.out_csv)
 
 # Exclusion Criteria 3: unrelated
-col_types = {"eid": str}
+col_types = {"eid": str, "frailty": "Int64"}
 col_types.update({col: float for col in immune_cols+metabol_cols+morpho_cols+covar_cols})
 col_types.update({col: bool for col in diagn_out_cols})
 data_out = pd.read_csv(
