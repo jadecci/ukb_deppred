@@ -12,7 +12,6 @@ def phy_frailty(data: pd.DataFrame) -> pd.DataFrame:
     walk_speed = (data["924-0.0"] == 1).astype("Int64")
 
     weakness = pd.Series(index=data.index, dtype="Int64")
-    phy_act = pd.Series(index=data.index, dtype="Int64")
     for data_i in data.index:
         bmi_thresh = bmi_threshs[data.loc[data_i, "31-0.0"]]
         bmi = data.loc[data_i, "21001-0.0"]
@@ -20,10 +19,20 @@ def phy_frailty(data: pd.DataFrame) -> pd.DataFrame:
         grip_str = (data.loc[data_i, "46-0.0"] + data.loc[data_i, "47-0.0"])
         for thresh_i in range(len(bmi_thresh) - 1):
             if bmi_thresh[thresh_i] < bmi <= bmi_thresh[thresh_i + 1]:
-                weakness.loc[data_i] = int((grip_str / 2) <= weak_thresh[thresh_i])
+                if pd.isna(grip_str):
+                    weakness.loc[data_i] = 0
+                elif (grip_str / 2) <= weak_thresh[thresh_i]:
+                    weakness.loc[data_i] = 1
+                else:
+                    weakness.loc[data_i] = 0
+
+    phy_act = pd.Series(index=data.index, dtype="Int64")
+    for data_i in data.index:
         activity = data.loc[data_i, "6164-0.0"]
         light_act_freq = data.loc[data_i, "1011-0.0"]
-        if activity == -7 or (activity == 4 and light_act_freq in [1, 2, 3]):
+        if pd.isna(activity):
+            phy_act.loc[data_i] = 0
+        elif activity == -7 or (activity == 4 and light_act_freq in [1, 2, 3]):
             phy_act.loc[data_i] = 1
 
     frailty = (
