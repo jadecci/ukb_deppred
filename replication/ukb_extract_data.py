@@ -5,12 +5,13 @@ import argparse
 import pandas as pd
 
 
-def get_fields(field_file: Path) -> tuple[dict, dict]:
+def get_fields(field_file: Path) -> tuple[list, dict, dict]:
     field_file_cols = {
         "Field ID": str, "To Exclude 1": float, "To Exclude 2": float, "To Exclude 3": float,
         "Type": str, "Instance": str}
     fields = pd.read_csv(field_file, usecols=list(field_file_cols.keys()), dtype=field_file_cols)
 
+    field_col_list = []
     field_cols = {}
     excludes = {}
     for _, field in fields.iterrows():
@@ -19,8 +20,9 @@ def get_fields(field_file: Path) -> tuple[dict, dict]:
             field_cols[field["Type"]].append(col_curr)
         else:
             field_cols[field["Type"]] = [col_curr]
+        field_col_list.append(col_curr)
         excludes[col_curr] = [field[f"To Exclude {i+1}"] for i in range(3)]
-    return field_cols, excludes
+    return field_col_list, field_cols, excludes
 
 
 parser = argparse.ArgumentParser(
@@ -40,17 +42,19 @@ args = parser.parse_args()
 # Set-ups
 encoding = "ISO-8859-1"
 chunksize = 1000
+args.work_dir.mkdir(parents=True, exist_ok=True)
+args.out_dir.mkdir(parents=True, exist_ok=True)
 
 # Data fields to read and/or write
-pheno_cols, pheno_excludes = get_fields(args.field_pheno)
-comp_cols, _ = get_fields(args.field_comp)
-dep_cols, dep_excludes = get_fields(args.field_dep)
+pheno_col_list, pheno_cols, pheno_excludes = get_fields(args.field_pheno)
+comp_col_list, comp_cols, _ = get_fields(args.field_comp)
+dep_col_list, dep_cols, dep_excludes = get_fields(args.field_dep)
 in_excludes = pheno_excludes | dep_excludes
 in_dtypes = {"eid": str, "31-0.0": float}
-in_dtypes.update({col: float for col_list in pheno_cols.values() for col in col_list})
-in_dtypes.update({col: "Int64" for col_list in dep_cols.values() for col in col_list})
+in_dtypes.update({col: float for col in pheno_col_list})
+in_dtypes.update({col: "Int64" for col in dep_col_list})
 out_dtypes = in_dtypes.copy()
-out_dtypes.update({col: float for col_list in comp_cols.values() for col in col_list})
+out_dtypes.update({col: float for col in comp_col_list})
 
 # Read raw data by chunks
 all_data_file = Path(args.work_dir, "ukb_extracted_data_all.csv")
@@ -61,9 +65,9 @@ iterator = pd.read_table(
     usecols=list(in_dtypes.keys()), dtype=in_dtypes, index_col="eid")
 for data_df in iterator:
     data_out = data_df.dropna(axis="index", how="all")
-    data_out = data_out.dropna(axis="index", how="any", subset=list(dep_cols.keys()))
-    data_out = data_out.loc[~(data_out[list(dep_cols.keys())] == 1).all(axis=1)]
-    for col in list(pheno_cols.keys())+list(dep_cols.keys()):
+    data_out = data_out.dropna(axis="index", how="any", subset=dep_col_list)
+    data_out = data_out.loc[~(data_out[dep_col_list] == 1).all(axis=1)]
+    for col in pheno_col_list+dep_col_list:
         for exclude in in_excludes[col]:
             data_out = data_out.loc[data_out[col] != exclude]
     if not data_out.empty:
@@ -92,8 +96,8 @@ data_unrelated = data_out.loc[data_out.index.isin(sub_out)]
 # Split into train and test set
 data_train = data_unrelated.copy().sample(frac=0.5, random_state=args.seed)
 data_train.to_csv(Path(args.out_dir, "ukb_extracted_data_train.csv"))
-for pheno_type, pheno_col_list in pheno_cols.items():
-    data_pheno = data_unrelated[pheno_col_list+["31-0.0"]+list(dep_cols.keys())].copy()
+for pheno_type, pheno_list in pheno_cols.items():
+    data_pheno = data_unrelated[pheno_list+["31-0.0"]+dep_col_list].copy()
     data_pheno = data_pheno.drop(data_train.index).dropna()
     pheno_name = pheno_type.replace(" ", "-")
     pheno_name = pheno_name.replace("/", "-")
