@@ -94,6 +94,7 @@ for data_df in iterator:
 data_unrelated = data_out.loc[data_out.index.isin(sub_out)]
 
 # Split into train and test set
+pheno_cols.update(comp_cols)
 data_train = data_unrelated.copy().sample(frac=0.5, random_state=args.seed)
 data_train.to_csv(Path(args.out_dir, "ukb_extracted_data_train.csv"))
 for pheno_type, pheno_list in pheno_cols.items():
