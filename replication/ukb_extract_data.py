@@ -2,7 +2,6 @@ from os import remove
 from pathlib import Path
 import argparse
 
-import datalad.api as dl
 import pandas as pd
 
 
