@@ -73,7 +73,6 @@ for gender in [0, 1]: # female, male
     model_curr.fit(data_train_curr_std)
     outfile_curr = Path(args.img_dir, f"ukb_cluster_{gender}.png")
     dendro_res_curr = plot_dendrogram(model_curr, np.array(dep_desc), outfile_curr)
-    print(dendro_res_curr)
     for leaf, color in zip(dendro_res_curr["leaves"], dendro_res_curr["leaves_color_list"]):
         cluster_ind = int(color[-1])
         if cluster_ind in clusters[gender].keys():
