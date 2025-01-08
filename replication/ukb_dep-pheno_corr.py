@@ -70,3 +70,16 @@ for pheno_type, pheno_col_list in pheno_cols.items():
 fdr_h = multipletests(corr_all["p"], method="fdr_bh")
 corr_sig = corr_all.loc[fdr_h[0] is True]
 corr_sig.to_csv(args.out_dir, "ukb_dep-pheno_corr_sig.csv")
+
+# Plot for each gender separately
+corr_sig["Absolute r"] = abs(corr_sig["r"])
+for gender in ["female", "male"]:
+    corr_sig_gender = corr_sig.loc[corr_sig["Gender"] == gender]
+    row_count = 0
+    while row_count < corr_sig_gender.shape[0]:
+        sns.relplot(
+            corr_sig_gender[row_count:(row_count+100)], kind="scatter", x="r",
+            y="Phneotype description", size="Absolute r", hue="Depression score", palette="Set2",
+            height=10, aspect=0.5, sizes=(50, 200))
+        row_count += 100
+        plt.save()
