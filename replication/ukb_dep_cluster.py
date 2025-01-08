@@ -36,8 +36,12 @@ def plot_dendrogram(model: FeatureAgglomeration, labels: np.ndarray, outfile: Pa
             else:
                 counts[i] = counts[i] + counts[child_ind - len(model.labels_)]
     linkage_mat = np.column_stack([model.children_, model.distances_, counts]).astype(float)
-    dendro_res = dendrogram(linkage_mat, orientation="left", labels=labels)
+
+    dendro_res = dendrogram(linkage_mat, orientation="left", labels=labels, leaf_font_size=8)
+    plt.tight_layout()
+    plt.show()
     plt.savefig(outfile)
+    plt.close()
     return dendro_res
 
 
