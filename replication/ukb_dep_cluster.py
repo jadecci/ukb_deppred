@@ -71,8 +71,8 @@ dtypes.update({col: "Int64" for col in dep_col_list})
 # Hierarchical clustering in training set
 data_train = pd.read_csv(Path(args.data_dir, "ukb_extracted_data_train.csv"))
 clusters = {0: {}, 1: {}}
-for gender in [0, 1]: # female, male
-    data_train_curr = data_train.loc[data_train["31-0.0"] == gender].copy()
+for gender_ind, gender in enumerate(["female", "male"]): # female, male
+    data_train_curr = data_train.loc[data_train["31-0.0"] == gender_ind].copy()
     data_train_curr_std = StandardScaler().fit_transform(data_train_curr[dep_col_list])
     model_curr = FeatureAgglomeration(n_clusters=2, compute_distances=True)
     model_curr.fit(data_train_curr_std)
@@ -80,10 +80,10 @@ for gender in [0, 1]: # female, male
     dendro_res_curr = plot_dendrogram(model_curr, np.array(dep_desc), outfile_curr)
     for leaf, color in zip(dendro_res_curr["leaves"], dendro_res_curr["leaves_color_list"]):
         cluster_ind = int(color[-1])
-        if cluster_ind in clusters[gender].keys():
-            clusters[gender][cluster_ind].append(dep_col_list[leaf])
+        if cluster_ind in clusters[gender_ind].keys():
+            clusters[gender_ind][cluster_ind].append(dep_col_list[leaf])
         else:
-            clusters[gender][cluster_ind] = [dep_col_list[leaf]]
+            clusters[gender_ind][cluster_ind] = [dep_col_list[leaf]]
 
 # Compute sum scores in test set
 for pheno_type, pheno_col_list in pheno_cols.items():
