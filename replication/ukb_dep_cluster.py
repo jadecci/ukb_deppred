@@ -5,6 +5,7 @@ from scipy.cluster.hierarchy import dendrogram
 from sklearn.cluster import FeatureAgglomeration
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -24,7 +25,7 @@ def get_fields(field_file: Path) -> tuple[dict, list]:
     return field_cols, field_desc
 
 
-def plot_dendrogram(model: FeatureAgglomeration, labels: np.ndarray) -> dict:
+def plot_dendrogram(model: FeatureAgglomeration, labels: np.ndarray, outfile: Path) -> dict:
     counts = np.zeros(model.children_.shape[0])
     for i, merge in enumerate(model.children_):
         for child_ind in merge:
@@ -34,6 +35,7 @@ def plot_dendrogram(model: FeatureAgglomeration, labels: np.ndarray) -> dict:
                 counts[i] = counts[i] + counts[child_ind - len(model.labels_)]
     linkage_mat = np.column_stack([model.children_, model.distances_, counts]).astype(float)
     dendro_res = dendrogram(linkage_mat, orientation="left", labels=labels)
+    plt.savefig(outfile)
     return dendro_res
 
 
@@ -67,7 +69,8 @@ for gender in [0, 1]: # female, male
     data_train_curr_std = StandardScaler().fit_transform(data_train_curr[list(dep_cols.keys())])
     model_curr = FeatureAgglomeration(n_clusters=2, compute_distances=True)
     model_curr.fit(data_train_curr_std)
-    dendro_res = plot_dendrogram(model_curr, np.array(dep_desc))
+    outfile_curr = Path(args.img_dir, f"ukb_cluster_{gender}.png")
+    dendro_res = plot_dendrogram(model_curr, np.array(dep_desc), outfile_curr)
     for dep_col, color in zip(dendro_res["ivl"], dendro_res["leaves_color_list"]):
         cluster_ind = int(color[-1])
         if color in clusters[gender].keys():
