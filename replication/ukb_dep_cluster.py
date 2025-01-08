@@ -39,7 +39,6 @@ def plot_dendrogram(model: FeatureAgglomeration, labels: np.ndarray, outfile: Pa
 
     dendro_res = dendrogram(linkage_mat, orientation="left", labels=labels, leaf_font_size=8)
     plt.tight_layout()
-    plt.show()
     plt.savefig(outfile)
     plt.close()
     return dendro_res
