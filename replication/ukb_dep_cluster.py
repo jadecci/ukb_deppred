@@ -99,7 +99,7 @@ for pheno_type, pheno_col_list in pheno_cols.items():
 
     for gender_ind, gender in enumerate(["female", "male"]):
         data_test_gender = data_test.loc[data_test["31-0.0"] == gender_ind].copy()
-        for cluster_ind, cluster in clusters[gender_ind].items():
+        for cluster_ind, cluster in clusters[gender].items():
             cluster_name = f"Sum score (cluster {cluster_ind})"
             data_test_gender[cluster_name] = data_test_gender[cluster].sum(axis="columns")
         data_test_gender.to_csv(
