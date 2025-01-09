@@ -23,6 +23,15 @@ def get_fields(field_file: Path) -> tuple[dict, dict]:
         field_desc[col_curr] = field["Field Description"]
     return field_cols, field_desc
 
+def plot_corr(data: pd.DataFrame, outfile: Path):
+    sns.relplot(
+        data, kind="scatter", x="r", y="Phneotype description", size="Absolute r",
+        hue="Depression score", palette="Set2", height=10, aspect=0.5, sizes=(50, 200))
+    plt.xticks([-0.2, -0.1, 0.0, 0.1, 0.2, 0.3])
+    plt.savefig(outfile)
+    plt.close()
+    return
+
 
 parser = argparse.ArgumentParser(
     description="Correlation analysis between depression scores and phenotypes in UKB",
@@ -34,6 +43,8 @@ parser.add_argument("out_dir", type=Path, help="Absolute path to output data dir
 parser.add_argument("img_dir", type=Path, help="Absolute path to output images directory")
 args = parser.parse_args()
 
+args.out_dir.mkdir(parents=True, exist_ok=True)
+args.img_dir.mkdir(parents=True, exist_ok=True)
 
 # Data fields to read and/or write
 pheno_cols, pheno_desc = get_fields(args.field_pheno)
@@ -73,13 +84,9 @@ corr_sig.to_csv(args.out_dir, "ukb_dep-pheno_corr_sig.csv")
 
 # Plot for each gender separately
 corr_sig["Absolute r"] = abs(corr_sig["r"])
-for gender in ["female", "male"]:
-    corr_sig_gender = corr_sig.loc[corr_sig["Gender"] == gender]
-    row_count = 0
-    while row_count < corr_sig_gender.shape[0]:
-        sns.relplot(
-            corr_sig_gender[row_count:(row_count+100)], kind="scatter", x="r",
-            y="Phneotype description", size="Absolute r", hue="Depression score", palette="Set2",
-            height=10, aspect=0.5, sizes=(50, 200))
-        row_count += 100
-        plt.save()
+corr_sig_female = corr_sig.loc[corr_sig["Gender"] == "female"]
+plot_corr(corr_sig_female, Path(args.img_dir, "ukb_corr_female.png"))
+corr_sig_male = corr_sig.loc[corr_sig["Gender"] == "male"]
+plot_corr(corr_sig_male[:60], Path(args.img_dir, "ukb_corr_male_1.png"))
+plot_corr(corr_sig_male[60:120], Path(args.img_dir, "ukb_corr_male_2.png"))
+plot_corr(corr_sig_male[120:], Path(args.img_dir, "ukb_corr_male_3.png"))
