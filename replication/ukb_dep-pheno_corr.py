@@ -23,10 +23,11 @@ def get_fields(field_file: Path) -> tuple[dict, dict]:
         field_desc[col_curr] = field["Field Description"]
     return field_cols, field_desc
 
+
 def plot_corr(data: pd.DataFrame, outfile: Path):
     sns.relplot(
-        data, kind="scatter", x="r", y="Phneotype description", size="Absolute r",
-        hue="Depression score", palette="Set2", height=10, aspect=0.5, sizes=(50, 200))
+        data, kind="scatter", x="r", y="Phenotype description", size="Absolute r",
+        hue="Depression score", palette="Set2", height=10, aspect=1, sizes=(50, 200))
     plt.xticks([-0.2, -0.1, 0.0, 0.1, 0.2, 0.3])
     plt.savefig(outfile)
     plt.close()
@@ -68,7 +69,7 @@ for pheno_type, pheno_col_list in pheno_cols.items():
         dtypes_pheno = dtypes.copy()
         dtypes_pheno.update({col: float for col in pheno_col_list})
         data_curr = pd.read_csv(
-            Path(args.data_dir, f"ukb_extracted_data_{pheno_name}_{gender}_cluster.csv"),
+            Path(args.data_dir, f"ukb_extracted_data_{pheno_name}_{gender}_clusters.csv"),
             usecols=list(dtypes_pheno.keys()), dtype=dtypes_pheno, index_col="eid")
         for col in pheno_col_list:
             for j in range(3):
@@ -79,8 +80,8 @@ for pheno_type, pheno_col_list in pheno_cols.items():
 
 # Only keep significant correlations (correcting for multiple comparisons)
 fdr_h = multipletests(corr_all["p"], method="fdr_bh")
-corr_sig = corr_all.loc[fdr_h[0] is True]
-corr_sig.to_csv(args.out_dir, "ukb_dep-pheno_corr_sig.csv")
+corr_sig = corr_all.loc[[h for h in fdr_h[0]]]
+corr_sig.to_csv(Path(args.out_dir, "ukb_dep-pheno_corr_sig.csv"))
 
 # Plot for each gender separately
 corr_sig["Absolute r"] = abs(corr_sig["r"])

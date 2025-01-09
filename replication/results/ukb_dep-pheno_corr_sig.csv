@@ -1,0 +1,139 @@
+,Type,Field ID,Phenotype description,Depression score,Gender,r,p
+22407-2.0_0_2,Body comp,22407-2.0,Visceral adipose tissue volume (VAT),Sum score (cluster 3),female,0.10959247152769078,2.779490814794002e-05
+22407-2.0_1_2,Body comp,22407-2.0,Visceral adipose tissue volume (VAT),Sum score (cluster 3),male,0.12301213050670307,9.316911552666258e-06
+22408-2.0_0_0,Body comp,22408-2.0,Abdominal subcutaneous adipose tissue volume (ASAT),Sum score (cluster 1),female,0.08733510663564449,0.0008499041112528079
+22408-2.0_0_2,Body comp,22408-2.0,Abdominal subcutaneous adipose tissue volume (ASAT),Sum score (cluster 3),female,0.12921589292207475,7.53341341801275e-07
+22408-2.0_1_2,Body comp,22408-2.0,Abdominal subcutaneous adipose tissue volume (ASAT),Sum score (cluster 3),male,0.1266399287594408,5.013687381570776e-06
+22410-2.0_0_0,Body comp,22410-2.0,Total trunk fat volume,Sum score (cluster 1),female,0.08779113905063907,0.0007979761668258327
+22410-2.0_0_2,Body comp,22410-2.0,Total trunk fat volume,Sum score (cluster 3),female,0.12906870368240425,7.756380920193606e-07
+22410-2.0_1_2,Body comp,22410-2.0,Total trunk fat volume,Sum score (cluster 3),male,0.13577120991802116,9.766355022006123e-07
+22432-2.0_0_0,Body comp,22432-2.0,Total abdominal adipose tissue index,Sum score (cluster 1),female,0.09198046619638793,0.0004411001000732353
+22432-2.0_0_2,Body comp,22432-2.0,Total abdominal adipose tissue index,Sum score (cluster 3),female,0.13401651185117958,2.858868275755249e-07
+22432-2.0_1_2,Body comp,22432-2.0,Total abdominal adipose tissue index,Sum score (cluster 3),male,0.1352244040445213,1.0804714309823774e-06
+22433-2.0_0_0,Body comp,22433-2.0,Weight-to-muscle ratio,Sum score (cluster 1),female,0.10357522774424224,7.512649510341904e-05
+22433-2.0_0_1,Body comp,22433-2.0,Weight-to-muscle ratio,Sum score (cluster 2),female,0.09907938317159562,0.00015266010580133237
+22433-2.0_0_2,Body comp,22433-2.0,Weight-to-muscle ratio,Sum score (cluster 3),female,0.14279084863960106,4.451520307947577e-08
+22434-2.0_0_2,Body comp,22434-2.0,Abdominal fat ratio,Sum score (cluster 3),female,0.10900676702595587,3.06897265247277e-05
+22434-2.0_1_2,Body comp,22434-2.0,Abdominal fat ratio,Sum score (cluster 3),male,0.11846097525872212,1.978786835603841e-05
+22435-2.0_0_2,Body comp,22435-2.0,Muscle fat infiltration,Sum score (cluster 3),female,0.09191145749441992,0.0004455175862185417
+23356-2.0_0_2,Body comp,23356-2.0,Posterior thigh muscle fat infiltration (MFI) (right),Sum score (cluster 3),female,0.08767343691087454,0.0008110895626063644
+24353-2.0_0_2,Body comp,24353-2.0,Anterior thigh muscle fat infiltration (MFI) (left),Sum score (cluster 3),female,0.08541892908190399,0.0011041721747256936
+24354-2.0_0_2,Body comp,24354-2.0,Anterior thigh muscle fat infiltration (MFI) (right),Sum score (cluster 3),female,0.09531856141361086,0.0002702167098413823
+23099-2.0_0_2,Body comp,23099-2.0,Body fat percentage,Sum score (cluster 3),female,0.1025745449994804,8.818968141982721e-05
+27388-2.0_0_1,Brain CS,27388-2.0,Area of S-oc-temp-lat (left hemisphere),Sum score (cluster 2),female,-0.06429302595762355,0.0008096229837013519
+27393-2.0_0_0,Brain CS,27393-2.0,Area of S-parieto-occipital (left hemisphere),Sum score (cluster 1),female,-0.07459351960810842,0.00010127948800806793
+27614-2.0_1_1,Brain CS,27614-2.0,Area of S-orbital-H-Shaped (right hemisphere),Sum score (cluster 2),male,0.07802738048293534,0.0001944471628843766
+27405-2.0_1_2,Brain CT,27405-2.0,Mean thickness of G+S-paracentral (left hemisphere),Sum score (cluster 3),male,0.07271356712239384,0.0005172341059203214
+27406-2.0_1_2,Brain CT,27406-2.0,Mean thickness of G+S-subcentral (left hemisphere),Sum score (cluster 3),male,0.06891812613966534,0.0010018257454911634
+27407-2.0_1_2,Brain CT,27407-2.0,Mean thickness of G+S-transv-frontopol (left hemisphere),Sum score (cluster 3),male,0.06891589680534616,0.001002205626157999
+27410-2.0_1_2,Brain CT,27410-2.0,Mean thickness of G+S-cingul-Mid-Post (left hemisphere),Sum score (cluster 3),male,0.07158399023634941,0.00063176375785415
+27411-2.0_1_1,Brain CT,27411-2.0,Mean thickness of G-cingul-Post-dorsal (left hemisphere),Sum score (cluster 2),male,0.0809040757201192,0.00011157203449258274
+27412-2.0_1_2,Brain CT,27412-2.0,Mean thickness of G-cingul-Post-ventral (left hemisphere),Sum score (cluster 3),male,0.0699950563039845,0.0008331216653329662
+27416-2.0_1_2,Brain CT,27416-2.0,Mean thickness of G-front-inf-Triangul (left hemisphere),Sum score (cluster 3),male,0.06840434678760884,0.0010929844906526702
+27417-2.0_1_2,Brain CT,27417-2.0,Mean thickness of G-front-middle (left hemisphere),Sum score (cluster 3),male,0.07645735902622894,0.0002612964099855068
+27418-2.0_1_2,Brain CT,27418-2.0,Mean thickness of G-front-sup (left hemisphere),Sum score (cluster 3),male,0.08642987803211316,3.6464389431169016e-05
+27421-2.0_1_2,Brain CT,27421-2.0,Mean thickness of G-occipital-middle (left hemisphere),Sum score (cluster 3),male,0.08708301236059209,3.1806606549798825e-05
+27427-2.0_1_1,Brain CT,27427-2.0,Mean thickness of G-pariet-inf-Angular (left hemisphere),Sum score (cluster 2),male,0.07010382145899963,0.000817635263372797
+27427-2.0_1_2,Brain CT,27427-2.0,Mean thickness of G-pariet-inf-Angular (left hemisphere),Sum score (cluster 3),male,0.0702866642689969,0.0007922015581818504
+27429-2.0_1_2,Brain CT,27429-2.0,Mean thickness of G-parietal-sup (left hemisphere),Sum score (cluster 3),male,0.06941969604829805,0.0009196651846745151
+27430-2.0_1_2,Brain CT,27430-2.0,Mean thickness of G-postcentral (left hemisphere),Sum score (cluster 3),male,0.0872806715663872,3.0512259855232474e-05
+27431-2.0_1_2,Brain CT,27431-2.0,Mean thickness of G-precentral (left hemisphere),Sum score (cluster 3),male,0.0770779649084588,0.0002326411921125685
+27432-2.0_1_2,Brain CT,27432-2.0,Mean thickness of G-precuneus (left hemisphere),Sum score (cluster 3),male,0.07698189289417406,0.00023687540430244192
+27436-2.0_1_1,Brain CT,27436-2.0,Mean thickness of G-temp-sup-Lateral (left hemisphere),Sum score (cluster 2),male,0.08309420164592404,7.220544089806222e-05
+27451-2.0_1_0,Brain CT,27451-2.0,Mean thickness of S-circular-insula-sup (left hemisphere),Sum score (cluster 1),male,0.07382617134784747,0.0004235886993176883
+27451-2.0_1_2,Brain CT,27451-2.0,Mean thickness of S-circular-insula-sup (left hemisphere),Sum score (cluster 3),male,0.09034159068738584,1.5857499830644607e-05
+27456-2.0_1_2,Brain CT,27456-2.0,Mean thickness of S-front-sup (left hemisphere),Sum score (cluster 3),male,0.06884919682766688,0.0010136331917564782
+27460-2.0_1_2,Brain CT,27460-2.0,Mean thickness of S-oc-sup+transversal (left hemisphere),Sum score (cluster 3),male,0.07978890404172745,0.00013868063125036168
+27463-2.0_1_2,Brain CT,27463-2.0,Mean thickness of S-oc-temp-med+Lingual (left hemisphere),Sum score (cluster 3),male,0.08053976052034807,0.00011982449958829425
+27469-2.0_1_2,Brain CT,27469-2.0,Mean thickness of S-postcentral (left hemisphere),Sum score (cluster 3),male,0.06955349813981349,0.0008988268813325318
+27473-2.0_1_1,Brain CT,27473-2.0,Mean thickness of S-subparietal (left hemisphere),Sum score (cluster 2),male,0.07193427060328819,0.000593944992606818
+27627-2.0_1_2,Brain CT,27627-2.0,Mean thickness of G+S-paracentral (right hemisphere),Sum score (cluster 3),male,0.07584354914399086,0.0002928647760222037
+27639-2.0_1_2,Brain CT,27639-2.0,Mean thickness of G-front-middle (right hemisphere),Sum score (cluster 3),male,0.08308377096743193,7.235705860348772e-05
+27640-2.0_1_2,Brain CT,27640-2.0,Mean thickness of G-front-sup (right hemisphere),Sum score (cluster 3),male,0.07988311789282107,0.00013617001636744144
+27649-2.0_1_2,Brain CT,27649-2.0,Mean thickness of G-pariet-inf-Angular (right hemisphere),Sum score (cluster 3),male,0.06897746862259854,0.0009917625669600386
+27654-2.0_1_2,Brain CT,27654-2.0,Mean thickness of G-precuneus (right hemisphere),Sum score (cluster 3),male,0.06931788073136645,0.0009358206350710422
+27662-2.0_1_1,Brain CT,27662-2.0,Mean thickness of G-temporal-middle (right hemisphere),Sum score (cluster 2),male,0.0736975819263967,0.0004335404493638402
+27670-2.0_1_2,Brain CT,27670-2.0,Mean thickness of S-cingul-Marginalis (right hemisphere),Sum score (cluster 3),male,0.07516949916386417,0.00033162654962198325
+27679-2.0_1_2,Brain CT,27679-2.0,Mean thickness of S-interm-prim-Jensen (right hemisphere),Sum score (cluster 3),male,0.07722949652894777,0.0002261066897332062
+27681-2.0_1_2,Brain CT,27681-2.0,Mean thickness of S-oc-middle+Lunatus (right hemisphere),Sum score (cluster 3),male,0.07117533785822172,0.0006787098884459489
+27685-2.0_1_0,Brain CT,27685-2.0,Mean thickness of S-oc-temp-med+Lingual (right hemisphere),Sum score (cluster 1),male,0.07543828376618011,0.00031562770123237476
+27685-2.0_1_1,Brain CT,27685-2.0,Mean thickness of S-oc-temp-med+Lingual (right hemisphere),Sum score (cluster 2),male,0.07575750464757028,0.0002975652256945398
+27477-2.0_1_2,Brain GMV,27477-2.0,Volume of G+S-frontomargin (left hemisphere),Sum score (cluster 3),male,0.07951666687459646,0.00014618231157332876
+27480-2.0_1_2,Brain GMV,27480-2.0,Volume of G+S-subcentral (left hemisphere),Sum score (cluster 3),male,0.0762378110444428,0.000272202357752675
+27489-2.0_1_0,Brain GMV,27489-2.0,Volume of G-front-inf-Orbital (left hemisphere),Sum score (cluster 1),male,0.0697874491681355,0.0008634390093530208
+27505-2.0_1_2,Brain GMV,27505-2.0,Volume of G-precentral (left hemisphere),Sum score (cluster 3),male,0.08604627712273863,3.949439027002666e-05
+27509-2.0_1_2,Brain GMV,27509-2.0,Volume of G-temp-sup-G-T-transv (left hemisphere),Sum score (cluster 3),male,0.0706537876355762,0.0007433353251181413
+27510-2.0_1_1,Brain GMV,27510-2.0,Volume of G-temp-sup-Lateral (left hemisphere),Sum score (cluster 2),male,0.07358359673968538,0.00044254390849542027
+27536-2.0_0_1,Brain GMV,27536-2.0,Volume of S-oc-temp-lat (left hemisphere),Sum score (cluster 2),female,-0.07444372950256983,0.00010459492323806354
+27536-2.0_0_2,Brain GMV,27536-2.0,Volume of S-oc-temp-lat (left hemisphere),Sum score (cluster 3),female,-0.0647271176066555,0.0007458487403096853
+27537-2.0_1_2,Brain GMV,27537-2.0,Volume of S-oc-temp-med+Lingual (left hemisphere),Sum score (cluster 3),male,0.08152837884153694,9.866281896550851e-05
+27539-2.0_0_1,Brain GMV,27539-2.0,Volume of S-orbital-med-olfact (left hemisphere),Sum score (cluster 2),female,-0.06319421083159413,0.0009943413528809637
+27701-2.0_1_2,Brain GMV,27701-2.0,Volume of G+S-paracentral (right hemisphere),Sum score (cluster 3),male,0.0800472807826204,0.00013189734032683525
+27726-2.0_1_2,Brain GMV,27726-2.0,Volume of G-postcentral (right hemisphere),Sum score (cluster 3),male,0.07007221536508029,0.0008221077241187423
+27727-2.0_1_2,Brain GMV,27727-2.0,Volume of G-precentral (right hemisphere),Sum score (cluster 3),male,0.07700663179143524,0.00023577822393720427
+27762-2.0_1_1,Brain GMV,27762-2.0,Volume of S-orbital-H-Shaped (right hemisphere),Sum score (cluster 2),male,0.07748479553891366,0.00021548530194812263
+25499-2.0_1_1,Brain WM,25499-2.0,Weighted-mean FA in tract forceps minor,Sum score (cluster 2),male,0.07095553345053308,0.0010666924550454876
+25500-2.0_1_1,Brain WM,25500-2.0,Weighted-mean FA in tract inferior fronto-occipital fasciculus (left),Sum score (cluster 2),male,0.07068779849272079,0.0011143565358227023
+25513-2.0_1_1,Brain WM,25513-2.0,Weighted-mean FA in tract uncinate fasciculus (left),Sum score (cluster 2),male,0.09135072645144163,2.4822294099373368e-05
+25514-2.0_1_1,Brain WM,25514-2.0,Weighted-mean FA in tract uncinate fasciculus (right),Sum score (cluster 2),male,0.08178745000670692,0.0001610171540853642
+25653-2.0_1_1,Brain WM,25653-2.0,Weighted-mean ICVF in tract anterior thalamic radiation (right),Sum score (cluster 2),male,0.08104054263270183,0.00018485844988780814
+25663-2.0_1_1,Brain WM,25663-2.0,Weighted-mean ICVF in tract inferior fronto-occipital fasciculus (right),Sum score (cluster 2),male,0.07052465535877367,0.001144357489780159
+25673-2.0_1_1,Brain WM,25673-2.0,Weighted-mean ICVF in tract superior thalamic radiation (left),Sum score (cluster 2),male,0.07619331958281848,0.00044049217244421007
+25674-2.0_1_1,Brain WM,25674-2.0,Weighted-mean ICVF in tract superior thalamic radiation (right),Sum score (cluster 2),male,0.07850696706934954,0.0002927849807355817
+25675-2.0_1_1,Brain WM,25675-2.0,Weighted-mean ICVF in tract uncinate fasciculus (left),Sum score (cluster 2),male,0.08096797098021974,0.0001873438100580313
+25675-2.0_1_2,Brain WM,25675-2.0,Weighted-mean ICVF in tract uncinate fasciculus (left),Sum score (cluster 3),male,0.07279692814294755,0.000786612404986443
+25676-2.0_1_1,Brain WM,25676-2.0,Weighted-mean ICVF in tract uncinate fasciculus (right),Sum score (cluster 2),male,0.08896272108600994,4.030174703664811e-05
+25676-2.0_1_2,Brain WM,25676-2.0,Weighted-mean ICVF in tract uncinate fasciculus (right),Sum score (cluster 3),male,0.07603408168492543,0.0004528689592674137
+25723-2.0_1_0,Brain WM,25723-2.0,Weighted-mean ISOVF in tract posterior thalamic radiation (left),Sum score (cluster 1),male,-0.07471404278863805,0.0005686830468428485
+25723-2.0_1_2,Brain WM,25723-2.0,Weighted-mean ISOVF in tract posterior thalamic radiation (left),Sum score (cluster 3),male,-0.08021496145448136,0.0002150521834064753
+25724-2.0_1_0,Brain WM,25724-2.0,Weighted-mean ISOVF in tract posterior thalamic radiation (right),Sum score (cluster 1),male,-0.07588018509485522,0.0004651380985683213
+25571-2.0_1_2,Brain WM,25571-2.0,Weighted-mean L1 in tract anterior thalamic radiation (left),Sum score (cluster 3),male,-0.07828124882461372,0.0003048343953255228
+25572-2.0_1_1,Brain WM,25572-2.0,Weighted-mean L1 in tract anterior thalamic radiation (right),Sum score (cluster 2),male,-0.07629229522448255,0.00043295905207758157
+25572-2.0_1_2,Brain WM,25572-2.0,Weighted-mean L1 in tract anterior thalamic radiation (right),Sum score (cluster 3),male,-0.08220032548955829,0.0001491109990836485
+25592-2.0_1_2,Brain WM,25592-2.0,Weighted-mean L1 in tract superior thalamic radiation (left),Sum score (cluster 3),male,-0.07295883032094302,0.0007655749556342621
+25593-2.0_1_2,Brain WM,25593-2.0,Weighted-mean L1 in tract superior thalamic radiation (right),Sum score (cluster 3),male,-0.07513170758198559,0.0005293529493244618
+25599-2.0_1_1,Brain WM,25599-2.0,Weighted-mean L2 in tract anterior thalamic radiation (right),Sum score (cluster 2),male,-0.08439575735897517,9.852496719737542e-05
+25600-2.0_1_1,Brain WM,25600-2.0,Weighted-mean L2 in tract cingulate gyrus part of cingulum (left),Sum score (cluster 2),male,-0.07521288640043301,0.0005220088738373927
+25601-2.0_1_1,Brain WM,25601-2.0,Weighted-mean L2 in tract cingulate gyrus part of cingulum (right),Sum score (cluster 2),male,-0.07887214229229048,0.0002742307870501421
+25621-2.0_1_1,Brain WM,25621-2.0,Weighted-mean L2 in tract uncinate fasciculus (left),Sum score (cluster 2),male,-0.08719537936844807,5.7251323384210934e-05
+25621-2.0_1_2,Brain WM,25621-2.0,Weighted-mean L2 in tract uncinate fasciculus (left),Sum score (cluster 3),male,-0.07962456537020965,0.0002394189323125117
+25622-2.0_1_1,Brain WM,25622-2.0,Weighted-mean L2 in tract uncinate fasciculus (right),Sum score (cluster 2),male,-0.07853763728823526,0.0002911825653323551
+25622-2.0_1_2,Brain WM,25622-2.0,Weighted-mean L2 in tract uncinate fasciculus (right),Sum score (cluster 3),male,-0.07154151048818813,0.0009688762381773735
+25626-2.0_1_1,Brain WM,25626-2.0,Weighted-mean L3 in tract anterior thalamic radiation (right),Sum score (cluster 2),male,-0.09203866156818769,2.15401833084128e-05
+25628-2.0_1_1,Brain WM,25628-2.0,Weighted-mean L3 in tract cingulate gyrus part of cingulum (right),Sum score (cluster 2),male,-0.0793889401617687,0.000249847832561306
+25634-2.0_1_1,Brain WM,25634-2.0,Weighted-mean L3 in tract forceps minor,Sum score (cluster 2),male,-0.07744410464970958,0.00035369517260170984
+25646-2.0_1_1,Brain WM,25646-2.0,Weighted-mean L3 in tract superior thalamic radiation (left),Sum score (cluster 2),male,-0.07670968575651095,0.00040249405999003696
+25647-2.0_1_1,Brain WM,25647-2.0,Weighted-mean L3 in tract superior thalamic radiation (right),Sum score (cluster 2),male,-0.08645076042381653,6.624889973854949e-05
+25648-2.0_1_1,Brain WM,25648-2.0,Weighted-mean L3 in tract uncinate fasciculus (left),Sum score (cluster 2),male,-0.08584430574540197,7.454882159019211e-05
+25648-2.0_1_2,Brain WM,25648-2.0,Weighted-mean L3 in tract uncinate fasciculus (left),Sum score (cluster 3),male,-0.08045120748911655,0.00020597005731926666
+25649-2.0_1_1,Brain WM,25649-2.0,Weighted-mean L3 in tract uncinate fasciculus (right),Sum score (cluster 2),male,-0.08520969930221277,8.42808100015705e-05
+25649-2.0_1_2,Brain WM,25649-2.0,Weighted-mean L3 in tract uncinate fasciculus (right),Sum score (cluster 3),male,-0.0725966961744178,0.0008133719172305568
+25518-2.0_1_1,Brain WM,25518-2.0,Weighted-mean MD in tract anterior thalamic radiation (right),Sum score (cluster 2),male,-0.08682191542056526,6.160879848357246e-05
+25518-2.0_1_2,Brain WM,25518-2.0,Weighted-mean MD in tract anterior thalamic radiation (right),Sum score (cluster 3),male,-0.07437003518037172,0.0006031015600632486
+25526-2.0_1_1,Brain WM,25526-2.0,Weighted-mean MD in tract forceps minor,Sum score (cluster 2),male,-0.07286053808424756,0.000778283829928588
+25538-2.0_1_1,Brain WM,25538-2.0,Weighted-mean MD in tract superior thalamic radiation (left),Sum score (cluster 2),male,-0.07372988576175618,0.0006723598898418695
+25539-2.0_1_1,Brain WM,25539-2.0,Weighted-mean MD in tract superior thalamic radiation (right),Sum score (cluster 2),male,-0.0789259642174438,0.00027159114331104197
+25540-2.0_1_1,Brain WM,25540-2.0,Weighted-mean MD in tract uncinate fasciculus (left),Sum score (cluster 2),male,-0.07296382977863697,0.0007649337161480989
+25540-2.0_1_2,Brain WM,25540-2.0,Weighted-mean MD in tract uncinate fasciculus (left),Sum score (cluster 3),male,-0.07528365978256797,0.0005156836968077647
+25541-2.0_1_1,Brain WM,25541-2.0,Weighted-mean MD in tract uncinate fasciculus (right),Sum score (cluster 2),male,-0.07359861269746112,0.000687445989327092
+25541-2.0_1_2,Brain WM,25541-2.0,Weighted-mean MD in tract uncinate fasciculus (right),Sum score (cluster 3),male,-0.07104435751295796,0.0010513004685126005
+25560-2.0_0_1,Brain WM,25560-2.0,Weighted-mean MO in tract medial lemniscus (right),Sum score (cluster 2),female,-0.06860301573748719,0.0005086085994486042
+25566-2.0_0_0,Brain WM,25566-2.0,Weighted-mean MO in tract superior thalamic radiation (right),Sum score (cluster 1),female,-0.06794543656828733,0.0005757602578178194
+2178-2.0_0_0,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 1),female,0.17223592138549818,3.4221441637289174e-23
+2178-2.0_0_1,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 2),female,0.2479335398906779,5.344803916466813e-47
+2178-2.0_0_2,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 3),female,0.2584517744146042,4.691345693035024e-51
+2178-2.0_1_0,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 1),male,0.15306996218753505,2.1448762214486367e-16
+2178-2.0_1_1,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 2),male,0.20678005975712652,7.077416769100893e-29
+2178-2.0_1_2,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 3),male,0.2207046951451445,9.267876732247622e-33
+2188-2.0_0_0,Health/risk,2188-2.0,"Long-standing illness, disability or infirmity",Sum score (cluster 1),female,0.07302818781765336,2.914796819530759e-05
+2188-2.0_0_1,Health/risk,2188-2.0,"Long-standing illness, disability or infirmity",Sum score (cluster 2),female,0.1402225207478186,7.932718069640827e-16
+2188-2.0_0_2,Health/risk,2188-2.0,"Long-standing illness, disability or infirmity",Sum score (cluster 3),female,0.16173351784451795,1.3230043289226615e-20
+2188-2.0_1_0,Health/risk,2188-2.0,"Long-standing illness, disability or infirmity",Sum score (cluster 1),male,0.07727767622554486,3.6527200249517846e-05
+2188-2.0_1_1,Health/risk,2188-2.0,"Long-standing illness, disability or infirmity",Sum score (cluster 2),male,0.11808493207463155,2.5961021930087144e-10
+2188-2.0_1_2,Health/risk,2188-2.0,"Long-standing illness, disability or infirmity",Sum score (cluster 3),male,0.10139614087184852,5.867981909635587e-08
+6159-2.0_0_0,Health/risk,6159-2.0,Pain type(s) experienced in last month,Sum score (cluster 1),female,0.07730078354870515,9.631112693698704e-06
+6159-2.0_0_1,Health/risk,6159-2.0,Pain type(s) experienced in last month,Sum score (cluster 2),female,0.09086303206268477,1.9432480647811844e-07
+6159-2.0_0_2,Health/risk,6159-2.0,Pain type(s) experienced in last month,Sum score (cluster 3),female,0.098198808505573,1.8353135781531098e-08
+6159-2.0_1_1,Health/risk,6159-2.0,Pain type(s) experienced in last month,Sum score (cluster 2),male,0.10084692001749651,6.91929947347668e-08
+6159-2.0_1_2,Health/risk,6159-2.0,Pain type(s) experienced in last month,Sum score (cluster 3),male,0.07338869712441437,8.852075152160104e-05
+728-2.0_0_1,Lifestyle,728-2.0,Number of vehicles in household,Sum score (cluster 2),female,-0.15107621477465935,0.00020134304800686602
