@@ -60,7 +60,7 @@ dtypes.update({col: float for col in dep_col_list})
 
 # Compute correlations for each gender separately
 corr_ind = [
-    f"{col}_{i}_{j}" for col in list(pheno_desc.keys()) for i in range(2) for j in range(3)]
+    f"{col}_{i}_{j}" for col in list(pheno_desc.keys()) for i in range(2) for j in range(4)]
 corr_all = pd.DataFrame(
     columns=["Type", "Field ID", "Phenotype description", "Depression score", "Gender", "r", "p"],
     index=corr_ind)
@@ -74,7 +74,7 @@ for pheno_type, pheno_col_list in pheno_cols.items():
             Path(args.data_dir, f"ukb_extracted_data_{pheno_name}_{gender}_clusters.csv"),
             usecols=list(dtypes_pheno.keys()), dtype=dtypes_pheno, index_col="eid")
         for col in pheno_col_list:
-            for j in range(3):
+            for j in range(4):
                 r, p = pearsonr(data_curr[col], data_curr[dep_col_list[j]])
                 corr_all.loc[f"{col}_{i}_{j}"] = {
                     "Type": pheno_type, "Field ID": col, "Phenotype description": pheno_desc[col],
