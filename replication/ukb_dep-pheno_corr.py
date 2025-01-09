@@ -82,12 +82,5 @@ for pheno_type, pheno_col_list in pheno_cols.items():
 fdr_h = multipletests(corr_all["p"], method="fdr_bh")
 corr_sig = corr_all.loc[[h for h in fdr_h[0]]]
 corr_sig.to_csv(Path(args.out_dir, "ukb_dep-pheno_corr_sig.csv"))
-
-# Plot for each gender separately
 corr_sig["Absolute r"] = abs(corr_sig["r"])
-corr_sig_female = corr_sig.loc[corr_sig["Gender"] == "female"]
-plot_corr(corr_sig_female, Path(args.img_dir, "ukb_corr_female.eps"))
-corr_sig_male = corr_sig.loc[corr_sig["Gender"] == "male"]
-data_split = round(corr_sig_male.shape[0]/2)
-plot_corr(corr_sig_male[:data_split], Path(args.img_dir, "ukb_corr_male_1.eps"))
-plot_corr(corr_sig_male[data_split:], Path(args.img_dir, "ukb_corr_male_2.eps"))
+plot_corr(corr_sig, Path(args.img_dir, "ukb_corr.eps"))
