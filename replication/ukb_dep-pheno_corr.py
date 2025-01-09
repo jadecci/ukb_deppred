@@ -25,9 +25,11 @@ def get_fields(field_file: Path) -> tuple[dict, dict]:
 
 
 def plot_corr(data: pd.DataFrame, outfile: Path):
+    hue_order = [f"Sum score (cluster {i})" for i in [1, 2, 3, 4]]
     sns.relplot(
         data, kind="scatter", x="r", y="Phenotype description", size="Absolute r",
-        hue="Depression score", palette="Set2", height=10, aspect=1, sizes=(50, 200))
+        hue="Depression score", palette="Set2", height=10, aspect=1, sizes=(50, 200),
+        hue_order=hue_order)
     plt.xticks([-0.2, -0.1, 0.0, 0.1, 0.2, 0.3])
     plt.savefig(outfile)
     plt.close()
