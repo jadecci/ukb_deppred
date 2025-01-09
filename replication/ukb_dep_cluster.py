@@ -54,6 +54,7 @@ parser.add_argument("field_pheno", type=Path, help="Absolute path to selected ph
 parser.add_argument("field_comp", type=Path, help="Absolute path to selected composite fields csv")
 parser.add_argument("field_dep", type=Path, help="Absolute path to selected depression fields csv")
 parser.add_argument("out_dir", type=Path, help="Absolute path to output data directory")
+parser.add_argument("res_dir", type=Path, help="Absolute path to output cluster results directory")
 parser.add_argument("img_dir", type=Path, help="Absolute path to output images directory")
 args = parser.parse_args()
 
@@ -70,7 +71,7 @@ dtypes.update({col: "Int64" for col in dep_col_list})
 
 # Hierarchical clustering in training set
 data_train = pd.read_csv(Path(args.data_dir, "ukb_extracted_data_train.csv"))
-clusters = {0: {}, 1: {}}
+clusters = {"female": {}, "male": {}}
 for gender_ind, gender in enumerate(["female", "male"]): # female, male
     data_train_curr = data_train.loc[data_train["31-0.0"] == gender_ind].copy()
     data_train_curr_std = StandardScaler().fit_transform(data_train_curr[dep_col_list])
@@ -80,10 +81,11 @@ for gender_ind, gender in enumerate(["female", "male"]): # female, male
     dendro_res_curr = plot_dendrogram(model_curr, np.array(dep_desc), outfile_curr)
     for leaf, color in zip(dendro_res_curr["leaves"], dendro_res_curr["leaves_color_list"]):
         cluster_ind = int(color[-1])
-        if cluster_ind in clusters[gender_ind].keys():
-            clusters[gender_ind][cluster_ind].append(dep_col_list[leaf])
+        if cluster_ind in clusters[gender].keys():
+            clusters[gender][cluster_ind].append(dep_col_list[leaf])
         else:
-            clusters[gender_ind][cluster_ind] = [dep_col_list[leaf]]
+            clusters[gender][cluster_ind] = [dep_col_list[leaf]]
+pd.DataFrame(clusters).to_csv(Path(args.res_dir, "ukb_dep_clusters.csv"))
 
 # Compute sum scores in test set
 for pheno_type, pheno_col_list in pheno_cols.items():
