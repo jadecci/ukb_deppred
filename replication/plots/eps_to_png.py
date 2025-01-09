@@ -22,6 +22,6 @@ if img.mode in ("P", "1"):
 # resize image
 ratio = min(target_bounds[0] / img.size[0], target_bounds[1] / img.size[1])
 new_size = (int(img.size[0] * ratio), int(img.size[1] * ratio))
-img = img.resize(new_size, img.ANTIALIAS)
+img = img.resize(new_size, Image.ANTIALIAS)
 
 img.save(args.out_file)
