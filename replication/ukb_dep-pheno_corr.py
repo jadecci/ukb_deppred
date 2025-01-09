@@ -90,6 +90,5 @@ corr_sig["Absolute r"] = abs(corr_sig["r"])
 corr_sig_female = corr_sig.loc[corr_sig["Gender"] == "female"]
 plot_corr(corr_sig_female, Path(args.img_dir, "ukb_corr_female.png"))
 corr_sig_male = corr_sig.loc[corr_sig["Gender"] == "male"]
-plot_corr(corr_sig_male[:60], Path(args.img_dir, "ukb_corr_male_1.png"))
-plot_corr(corr_sig_male[60:120], Path(args.img_dir, "ukb_corr_male_2.png"))
-plot_corr(corr_sig_male[120:], Path(args.img_dir, "ukb_corr_male_3.png"))
+plot_corr(corr_sig_male[:(corr_sig_male.shape[0]/2)], Path(args.img_dir, "ukb_corr_male_1.png"))
+plot_corr(corr_sig_male[(corr_sig_male.shape[0]/2):], Path(args.img_dir, "ukb_corr_male_2.png"))
