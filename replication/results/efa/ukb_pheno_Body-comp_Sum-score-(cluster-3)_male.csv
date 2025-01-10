@@ -1,9 +1,4 @@
-,eta1,eta2
-22432,Total abdominal adipose tissue index,
-22410,Total trunk fat volume,
-22408,Abdominal subcutaneous adipose tissue volume (ASAT),Abdominal subcutaneous adipose tissue volume (ASAT)
-23099,Body fat percentage,Body fat percentage
-22407,Visceral adipose tissue volume (VAT),Visceral adipose tissue volume (VAT)
-22433,Weight-to-muscle ratio,Weight-to-muscle ratio
-23355,,Posterior thigh muscle fat infiltration (MFI) (left)
-23356,,Posterior thigh muscle fat infiltration (MFI) (right)
+,eta1
+22410,Total trunk fat volume
+22432,Total abdominal adipose tissue index
+22408,Abdominal subcutaneous adipose tissue volume (ASAT)
