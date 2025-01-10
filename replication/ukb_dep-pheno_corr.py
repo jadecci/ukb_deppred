@@ -79,7 +79,7 @@ for pheno_type, pheno_col_list in pheno_cols.items():
                     "Depression score": dep_col_list[j], "Gender": gender, "r": r, "p": p}
 
 # Only keep significant correlations (correcting for multiple comparisons)
-fdr_h = multipletests(corr_all["p"], method="fdr_bh")
+fdr_h = multipletests(corr_all["p"], method="bonferroni")
 corr_sig = corr_all.loc[[h for h in fdr_h[0]]]
 corr_sig.to_csv(Path(args.out_dir, "ukb_dep-pheno_corr_sig.csv"))
 corr_sig["Absolute r"] = abs(corr_sig["r"])

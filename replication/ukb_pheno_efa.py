@@ -3,6 +3,7 @@ import argparse
 
 from semopy.efa import explore_cfa_model
 import pandas as pd
+import numpy as np
 
 
 def get_fields(field_file: Path, corr_infos: pd.DataFrame) -> tuple[dict, dict]:
@@ -24,7 +25,7 @@ def get_fields(field_file: Path, corr_infos: pd.DataFrame) -> tuple[dict, dict]:
                     field_cols[key_curr].append(col_curr)
                 else:
                     field_cols[key_curr] = [col_curr]
-            field_desc[col_curr] = field["Field Description"]
+            field_desc[field["Field ID"]] = field["Field Description"]
     return field_cols, field_desc
 
 
@@ -33,11 +34,14 @@ parser = argparse.ArgumentParser(
     formatter_class=lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog, width=100))
 parser.add_argument("train_file", type=Path, help="Absolute path to input training data")
 parser.add_argument("corr_file", type=Path, help="Absolute path to input correlation data")
+parser.add_argument("field_pheno", type=Path, help="Absolute path to selected phenotype fields csv")
+parser.add_argument("field_comp", type=Path, help="Absolute path to selected composite fields csv")
 parser.add_argument("out_dir", type=Path, help="Absolute path to output data directory")
 args = parser.parse_args()
 
 args.out_dir.mkdir(parents=True, exist_ok=True)
 gender_ind = {"female": 0, "male": 1}
+log_file = Path(args.out_dir, "ukb_pheno_efa.log")
 
 # Only use datafields with significant correlations with depressive scores
 corr_cols = {"Type": str, "Field ID": str, "Depression score": str, "Gender": str}
@@ -54,20 +58,32 @@ dtypes.update({col: float for col_list in pheno_cols.values() for col in col_lis
 # Run CFA in training set
 data_train = pd.read_csv(
     args.train_file, usecols=list(dtypes.keys()), dtype=dtypes, index_col="eid")
-for key, col_list in pheno_cols:
+for key, col_list in pheno_cols.items():
     gender_curr = key.split("_")[2]
     col_renames = [col.split("-")[0] for col in col_list]
     data_train_curr = data_train.loc[data_train["31-0.0"] == gender_ind[gender_curr]].copy()
     data_pheno_curr = data_train_curr[col_list].dropna()
     data_pheno_curr.columns = col_renames
 
-    latent_desc = explore_cfa_model(data_pheno_curr)
-    efa_file = Path(args.out_dir, f"ukb_cfa_{key}.txt")
-    with open(efa_file, "w") as f:
-        f.writelines(latent_desc)
-    print(key, "EFA finished")
+    if data_pheno_curr.shape[1] <= 2:
+        with open(log_file, "a") as f:
+            print(key, "Too few phenotypes for EFA", file=f)
+    else:
+        try:
+            latent_desc = explore_cfa_model(data_pheno_curr)
+            efa_file = Path(args.out_dir, f"ukb_cfa_{key}.txt")
+            with open(efa_file, "w") as f:
+                f.writelines(latent_desc)
+            with open(log_file, "a") as f:
+                print(key, "EFA finished", file=f)
 
-    pheno_list = [pheno_desc[col] for col in col_list]
-    pheno_file = Path(args.out_dir, f"ukb_pheno_{key}.txt")
-    with open(pheno_file, "w") as f:
-        f.write("\n".join(pheno_list))
+            pheno_desc_curr = {}
+            for desc_line in latent_desc.split("\n"):
+                if desc_line:
+                    eta, phenos = desc_line.split(" =~ ")
+                    pheno_desc_curr[eta] = {col: pheno_desc[col] for col in phenos.split(" + ")}
+            pheno_file = Path(args.out_dir, f"ukb_pheno_{key}.csv")
+            pd.DataFrame(pheno_desc_curr).to_csv(pheno_file)
+        except SyntaxError or np.linalg.LinAlgError:
+            with open(log_file, "a") as f:
+                print(key, "EFA failed", file=f)

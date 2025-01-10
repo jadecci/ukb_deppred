@@ -1,0 +1,59 @@
+Body-comp_Sum-score-(cluster-3)_male EFA finished
+Body-comp_Sum-score-(cluster-1)_female EFA finished
+Body-comp_Sum-score-(cluster-3)_female EFA finished
+Body-comp_Sum-score-(cluster-4)_female EFA finished
+Body-comp_Sum-score-(cluster-2)_male EFA finished
+Body-comp_Sum-score-(cluster-4)_male EFA finished
+Body-comp_Sum-score-(cluster-2)_female EFA finished
+Body-comp_Sum-score-(cluster-1)_male Too few phenotypes for EFA
+Brain-CS_Sum-score-(cluster-4)_female EFA finished
+Brain-CS_Sum-score-(cluster-3)_male EFA finished
+Brain-CS_Sum-score-(cluster-2)_female EFA finished
+Brain-CS_Sum-score-(cluster-3)_female EFA finished
+Brain-CS_Sum-score-(cluster-4)_male EFA finished
+Brain-CS_Sum-score-(cluster-1)_female EFA finished
+Brain-CS_Sum-score-(cluster-2)_male EFA finished
+Brain-CS_Sum-score-(cluster-1)_male Too few phenotypes for EFA
+Brain-CT_Sum-score-(cluster-1)_male EFA finished
+Brain-CT_Sum-score-(cluster-3)_male EFA finished
+Brain-CT_Sum-score-(cluster-1)_female EFA finished
+Brain-CT_Sum-score-(cluster-4)_female EFA finished
+Brain-CT_Sum-score-(cluster-2)_male EFA finished
+Brain-CT_Sum-score-(cluster-4)_male EFA finished
+Brain-CT_Sum-score-(cluster-3)_female Too few phenotypes for EFA
+Brain-CT_Sum-score-(cluster-2)_female Too few phenotypes for EFA
+Brain-GMV_Sum-score-(cluster-1)_male EFA finished
+Brain-GMV_Sum-score-(cluster-2)_male EFA finished
+Brain-GMV_Sum-score-(cluster-3)_male EFA finished
+Brain-GMV_Sum-score-(cluster-3)_female EFA finished
+Brain-GMV_Sum-score-(cluster-2)_female EFA finished
+Brain-GMV_Sum-score-(cluster-4)_male EFA finished
+Brain-GMV_Sum-score-(cluster-4)_female EFA finished
+Brain-GMV_Sum-score-(cluster-1)_female EFA finished
+Brain-WM_Sum-score-(cluster-2)_female EFA failed
+Brain-WM_Sum-score-(cluster-3)_female EFA finished
+Brain-WM_Sum-score-(cluster-4)_female EFA failed
+Brain-WM_Sum-score-(cluster-1)_male EFA failed
+Brain-WM_Sum-score-(cluster-2)_male EFA failed
+Brain-WM_Sum-score-(cluster-3)_male EFA failed
+Brain-WM_Sum-score-(cluster-4)_male EFA failed
+Brain-WM_Sum-score-(cluster-1)_female EFA failed
+Health-risk_Sum-score-(cluster-1)_female EFA finished
+Health-risk_Sum-score-(cluster-2)_female EFA finished
+Health-risk_Sum-score-(cluster-3)_female EFA finished
+Health-risk_Sum-score-(cluster-4)_female EFA finished
+Health-risk_Sum-score-(cluster-1)_male EFA finished
+Health-risk_Sum-score-(cluster-2)_male EFA finished
+Health-risk_Sum-score-(cluster-3)_male EFA finished
+Health-risk_Sum-score-(cluster-4)_male EFA finished
+Lifestyle_Sum-score-(cluster-4)_female Too few phenotypes for EFA
+Lifestyle_Sum-score-(cluster-2)_male Too few phenotypes for EFA
+Lifestyle_Sum-score-(cluster-3)_male EFA finished
+Lifestyle_Sum-score-(cluster-3)_female Too few phenotypes for EFA
+Lifestyle_Sum-score-(cluster-4)_male Too few phenotypes for EFA
+Lifestyle_Sum-score-(cluster-2)_female EFA finished
+Musculoskeletal_Sum-score-(cluster-3)_female Too few phenotypes for EFA
+Musculoskeletal_Sum-score-(cluster-4)_female Too few phenotypes for EFA
+Musculoskeletal_Sum-score-(cluster-3)_male Too few phenotypes for EFA
+Musculoskeletal_Sum-score-(cluster-4)_male Too few phenotypes for EFA
+Immunometabolic_Sum-score-(cluster-4)_female Too few phenotypes for EFA
