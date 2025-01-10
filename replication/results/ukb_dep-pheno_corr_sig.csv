@@ -1,1 +1,47 @@
-../../.git/annex/objects/xz/5F/MD5E-s429427--27c3eb0715623f77346b9d73406e0151.csv/MD5E-s429427--27c3eb0715623f77346b9d73406e0151.csv
+,Type,Field ID,Phenotype description,Depression score,Gender,r,p
+22407-2.0_0_3,Body comp,22407-2.0,Visceral adipose tissue volume (VAT),Sum score (cluster 4),female,0.2444844925884292,2.9380438418715905e-21
+22407-2.0_1_3,Body comp,22407-2.0,Visceral adipose tissue volume (VAT),Sum score (cluster 4),male,0.13352836439373633,1.4744543764266322e-06
+22408-2.0_0_2,Body comp,22408-2.0,Abdominal subcutaneous adipose tissue volume (ASAT),Sum score (cluster 3),female,0.12921589292207475,7.53341341801275e-07
+22408-2.0_0_3,Body comp,22408-2.0,Abdominal subcutaneous adipose tissue volume (ASAT),Sum score (cluster 4),female,0.2658918023154464,5.519946635857245e-25
+22408-2.0_1_2,Body comp,22408-2.0,Abdominal subcutaneous adipose tissue volume (ASAT),Sum score (cluster 3),male,0.1266399287594408,5.013687381570776e-06
+22408-2.0_1_3,Body comp,22408-2.0,Abdominal subcutaneous adipose tissue volume (ASAT),Sum score (cluster 4),male,0.13452785285553664,1.2281834162803115e-06
+22410-2.0_0_2,Body comp,22410-2.0,Total trunk fat volume,Sum score (cluster 3),female,0.12906870368240425,7.756380920193606e-07
+22410-2.0_0_3,Body comp,22410-2.0,Total trunk fat volume,Sum score (cluster 4),female,0.27197566766648984,4.154814046422498e-26
+22410-2.0_1_2,Body comp,22410-2.0,Total trunk fat volume,Sum score (cluster 3),male,0.13577120991802116,9.766355022006123e-07
+22410-2.0_1_3,Body comp,22410-2.0,Total trunk fat volume,Sum score (cluster 4),male,0.14566882033838507,1.4646762354223361e-07
+22432-2.0_0_2,Body comp,22432-2.0,Total abdominal adipose tissue index,Sum score (cluster 3),female,0.13401651185117958,2.858868275755249e-07
+22432-2.0_0_3,Body comp,22432-2.0,Total abdominal adipose tissue index,Sum score (cluster 4),female,0.27255307313033633,3.239130944171817e-26
+22432-2.0_1_2,Body comp,22432-2.0,Total abdominal adipose tissue index,Sum score (cluster 3),male,0.1352244040445213,1.0804714309823774e-06
+22432-2.0_1_3,Body comp,22432-2.0,Total abdominal adipose tissue index,Sum score (cluster 4),male,0.14743505306889548,1.0297891718669043e-07
+22433-2.0_0_2,Body comp,22433-2.0,Weight-to-muscle ratio,Sum score (cluster 3),female,0.14279084863960106,4.451520307947577e-08
+22433-2.0_0_3,Body comp,22433-2.0,Weight-to-muscle ratio,Sum score (cluster 4),female,0.26428303427611183,1.0818634376419583e-24
+22433-2.0_1_3,Body comp,22433-2.0,Weight-to-muscle ratio,Sum score (cluster 4),male,0.13170806098908472,2.0498130334764124e-06
+22434-2.0_0_3,Body comp,22434-2.0,Abdominal fat ratio,Sum score (cluster 4),female,0.2457299941330578,1.8230698532782632e-21
+22434-2.0_1_3,Body comp,22434-2.0,Abdominal fat ratio,Sum score (cluster 4),male,0.14651268584387955,1.2384281411556665e-07
+22435-2.0_0_3,Body comp,22435-2.0,Muscle fat infiltration,Sum score (cluster 4),female,0.1644605149580763,2.7357929562867873e-10
+23355-2.0_0_3,Body comp,23355-2.0,Posterior thigh muscle fat infiltration (MFI) (left),Sum score (cluster 4),female,0.1544109378431677,3.1720334116902604e-09
+23356-2.0_0_3,Body comp,23356-2.0,Posterior thigh muscle fat infiltration (MFI) (right),Sum score (cluster 4),female,0.15346285082324684,3.9652635233353415e-09
+24353-2.0_0_3,Body comp,24353-2.0,Anterior thigh muscle fat infiltration (MFI) (left),Sum score (cluster 4),female,0.1645440249106237,2.678901269120072e-10
+24354-2.0_0_3,Body comp,24354-2.0,Anterior thigh muscle fat infiltration (MFI) (right),Sum score (cluster 4),female,0.15966628249472092,8.978363174050657e-10
+23099-2.0_0_3,Body comp,23099-2.0,Body fat percentage,Sum score (cluster 4),female,0.22677393576876476,1.9511363050803226e-18
+2178-2.0_0_0,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 1),female,0.17223592138549818,3.4221441637289174e-23
+2178-2.0_0_1,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 2),female,0.2479335398906779,5.344803916466813e-47
+2178-2.0_0_2,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 3),female,0.2584517744146042,4.691345693035024e-51
+2178-2.0_0_3,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 4),female,0.36120003433943526,2.403402612802482e-101
+2178-2.0_1_0,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 1),male,0.15306996218753505,2.1448762214486367e-16
+2178-2.0_1_1,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 2),male,0.20678005975712652,7.077416769100893e-29
+2178-2.0_1_2,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 3),male,0.2207046951451445,9.267876732247622e-33
+2178-2.0_1_3,Health/risk,2178-2.0,Overall health rating,Sum score (cluster 4),male,0.29168103651864596,5.726653988693844e-57
+2188-2.0_0_1,Health/risk,2188-2.0,"Long-standing illness, disability or infirmity",Sum score (cluster 2),female,0.1402225207478186,7.932718069640827e-16
+2188-2.0_0_2,Health/risk,2188-2.0,"Long-standing illness, disability or infirmity",Sum score (cluster 3),female,0.16173351784451795,1.3230043289226615e-20
+2188-2.0_0_3,Health/risk,2188-2.0,"Long-standing illness, disability or infirmity",Sum score (cluster 4),female,0.20019218911448408,6.524272621838302e-31
+2188-2.0_1_1,Health/risk,2188-2.0,"Long-standing illness, disability or infirmity",Sum score (cluster 2),male,0.11808493207463155,2.5961021930087144e-10
+2188-2.0_1_2,Health/risk,2188-2.0,"Long-standing illness, disability or infirmity",Sum score (cluster 3),male,0.10139614087184852,5.867981909635587e-08
+2188-2.0_1_3,Health/risk,2188-2.0,"Long-standing illness, disability or infirmity",Sum score (cluster 4),male,0.1720703249463834,2.290697831054506e-20
+6159-2.0_0_1,Health/risk,6159-2.0,Pain type(s) experienced in last month,Sum score (cluster 2),female,0.09086303206268477,1.9432480647811844e-07
+6159-2.0_0_2,Health/risk,6159-2.0,Pain type(s) experienced in last month,Sum score (cluster 3),female,0.098198808505573,1.8353135781531098e-08
+6159-2.0_0_3,Health/risk,6159-2.0,Pain type(s) experienced in last month,Sum score (cluster 4),female,0.16862560656516135,2.771622208726038e-22
+6159-2.0_1_1,Health/risk,6159-2.0,Pain type(s) experienced in last month,Sum score (cluster 2),male,0.10084692001749651,6.91929947347668e-08
+6159-2.0_1_3,Health/risk,6159-2.0,Pain type(s) experienced in last month,Sum score (cluster 4),male,0.1263678799322495,1.3055870473848739e-11
+c001-0.0_0_3,Musculoskeletal,c001-0.0,Waist-hip ratio,Sum score (cluster 4),female,0.11874569474373978,1.7331716901842208e-11
+c001-0.0_1_3,Musculoskeletal,c001-0.0,Waist-hip ratio,Sum score (cluster 4),male,0.09920601402251616,1.627550633048335e-07
