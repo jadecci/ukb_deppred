@@ -28,7 +28,7 @@ def plot_corr(data: pd.DataFrame, outfile: Path):
     hue_order = [f"Sum score (cluster {i})" for i in [1, 2, 3, 4]]
     sns.catplot(
         data, kind="swarm", x="r", y="Type", hue="Depression score", col="Gender",
-        dodge=True, palette="Set2", size=3, height=10, aspect=0.7, hue_order=hue_order)
+        dodge=True, palette="Set2", size=5, height=10, aspect=0.5, hue_order=hue_order)
     plt.savefig(outfile)
     plt.close()
     return
