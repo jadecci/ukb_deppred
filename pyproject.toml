@@ -25,6 +25,7 @@ dependencies = [
     "scikit-learn ~= 1.5.1",
     "tables ~= 3.10.0",
     "Pillow ~= 11.1.0",
+    "semopy ~=2.3.11",
 ]
 dynamic = ["version"]
 
