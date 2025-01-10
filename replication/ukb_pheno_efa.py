@@ -1,3 +1,4 @@
+from os import remove
 from pathlib import Path
 import argparse
 
@@ -42,6 +43,8 @@ args = parser.parse_args()
 args.out_dir.mkdir(parents=True, exist_ok=True)
 gender_ind = {"female": 0, "male": 1}
 log_file = Path(args.out_dir, "ukb_pheno_efa.log")
+if log_file.exists():
+    remove(log_file)
 
 # Only use datafields with significant correlations with depressive scores
 corr_cols = {"Type": str, "Field ID": str, "Depression score": str, "Gender": str}
