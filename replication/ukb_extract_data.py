@@ -32,6 +32,8 @@ parser.add_argument("raw_tsv", type=Path, help="Absolute path to UKB raw data ts
 parser.add_argument("genetic_tsv", type=Path, help="Absolute path to UKB genetic data tsv")
 parser.add_argument("field_pheno", type=Path, help="Absolute path to selected phenotype fields csv")
 parser.add_argument("field_comp", type=Path, help="Absolute path to selected composite fields csv")
+parser.add_argument(
+    "field_demo", type=Path, help="Absolute path to selected sociodemographics fields csv")
 parser.add_argument("field_dep", type=Path, help="Absolute path to selected depression fields csv")
 parser.add_argument("work_dir", type=Path, help="Absolute path to working directory")
 parser.add_argument("out_dir", type=Path, help="Absolute path to output directory")
@@ -48,13 +50,22 @@ args.out_dir.mkdir(parents=True, exist_ok=True)
 # Data fields to read and/or write
 pheno_col_list, pheno_cols, pheno_excludes = get_fields(args.field_pheno)
 comp_col_list, comp_cols, _ = get_fields(args.field_comp)
+demo_col_list, demo_cols, _ = get_fields(args.field_demo)
 dep_col_list, dep_cols, dep_excludes = get_fields(args.field_dep)
 in_excludes = pheno_excludes | dep_excludes
-in_dtypes = {"eid": str, "31-0.0": float}
-in_dtypes.update({col: float for col in pheno_col_list})
-in_dtypes.update({col: "Int64" for col in dep_col_list})
+in_dtypes = {"eid": str}
+in_dtypes.update({col: float for col in pheno_col_list+demo_col_list+dep_col_list})
 out_dtypes = in_dtypes.copy()
 out_dtypes.update({col: float for col in comp_col_list})
+
+# ICD-10 code columns
+icd10_col_list = []
+data_head = pd.read_table(args.raw_tsv, delimiter="\t", encoding=encoding, nrows=2, index_col="eid")
+for col in data_head.columns:
+    if col.split("-")[0] == "41270":
+        icd10_col_list.append(col)
+        in_dtypes[col] = str
+        out_dtypes[col] = str
 
 # Read raw data by chunks
 all_data_file = Path(args.work_dir, "ukb_extracted_data_all.csv")
@@ -67,11 +78,10 @@ for data_df in iterator:
     data_out = data_df.dropna(axis="index", how="all")
     data_out = data_out.dropna(axis="index", how="any", subset=dep_col_list)
     data_out = data_out.loc[~(data_out[dep_col_list] == 1).all(axis=1)]
-    for col in pheno_col_list+dep_col_list:
+    for col in demo_col_list+dep_col_list:
         for exclude in in_excludes[col]:
             data_out = data_out.loc[data_out[col] != exclude]
     if not data_out.empty:
-        data_out["c001-0.0"] = data_out["48-2.0"] / data_out["49-2.0"]
         data_out["c002-0.0"] = data_out["30140-0.0"] * data_out["30080-0.0"] / data_out["30120-0.0"]
         data_out["c003-0.0"] = data_out["30140-0.0"] / data_out["30120-0.0"]
         data_out["c004-0.0"] = data_out["30080-0.0"] / data_out["30120-0.0"]
@@ -98,7 +108,7 @@ pheno_cols.update(comp_cols)
 data_train = data_unrelated.copy().sample(frac=0.5, random_state=args.seed)
 data_train.to_csv(Path(args.out_dir, "ukb_extracted_data_train.csv"))
 for pheno_type, pheno_list in pheno_cols.items():
-    data_pheno = data_unrelated[pheno_list+["31-0.0"]+dep_col_list].copy()
+    data_pheno = data_unrelated[pheno_list+demo_col_list+dep_col_list+icd10_col_list].copy()
     data_pheno = data_pheno.drop(data_train.index).dropna()
     pheno_name = pheno_type.replace(" ", "-")
     pheno_name = pheno_name.replace("/", "-")
