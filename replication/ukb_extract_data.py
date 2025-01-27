@@ -38,7 +38,7 @@ parser.add_argument("field_dep", type=Path, help="Absolute path to selected depr
 parser.add_argument("work_dir", type=Path, help="Absolute path to working directory")
 parser.add_argument("out_dir", type=Path, help="Absolute path to output directory")
 parser.add_argument(
-    "--seed", type=int, dest="seed", default=0, help="Random state seed for train-test split")
+    "--seed", type=int, dest="seed", default=42, help="Random state seed for train-test split")
 args = parser.parse_args()
 
 # Set-ups
@@ -59,17 +59,11 @@ out_dtypes = in_dtypes.copy()
 out_dtypes.update({col: float for col in comp_col_list})
 
 # ICD-10 code columns
-<<<<<<< HEAD
-data_head = pd.read_table(args.raw_tsv, delimiter="\t", encoding=encoding, nrows=2, index_col="eid")
-for col in data_head.columns:
-    if col.split("-")[0] == "41270":
-=======
 icd10_col_list = []
 data_head = pd.read_table(args.raw_tsv, delimiter="\t", encoding=encoding, nrows=2, index_col="eid")
 for col in data_head.columns:
     if col.split("-")[0] == "41270":
         icd10_col_list.append(col)
->>>>>>> origin/master
         in_dtypes[col] = str
         out_dtypes[col] = str
 
@@ -85,14 +79,9 @@ for data_df in iterator:
     data_out = data_out.dropna(axis="index", how="any", subset=dep_col_list)
     data_out = data_out.loc[~(data_out[dep_col_list] == 1).all(axis=1)]
     for col in demo_col_list+dep_col_list:
-<<<<<<< HEAD
         if col in in_excludes.keys():
             for exclude in in_excludes[col]:
                 data_out = data_out.loc[data_out[col] != exclude]
-=======
-        for exclude in in_excludes[col]:
-            data_out = data_out.loc[data_out[col] != exclude]
->>>>>>> origin/master
     if not data_out.empty:
         data_out["c002-0.0"] = data_out["30140-0.0"] * data_out["30080-0.0"] / data_out["30120-0.0"]
         data_out["c003-0.0"] = data_out["30140-0.0"] / data_out["30120-0.0"]
@@ -129,16 +118,11 @@ data_test.to_csv(Path(args.out_dir, "ukb_extracted_data_test.csv"))
 
 icd10_col_list = [col for col in data_unrelated.columns if col.split("-")[0] == "41270"]
 for pheno_type, pheno_list in pheno_cols.items():
-<<<<<<< HEAD
     pheno_list_curr = pheno_list.copy()
     if pheno_type in comp_cols.keys():
         pheno_list_curr.extend(comp_cols[pheno_type])
     cols_curr = pheno_list_curr + demo_col_list + dep_col_list + icd10_col_list
     data_pheno = data_unrelated[cols_curr].copy()
     data_pheno = data_pheno.drop(data_train.index).dropna(subset=pheno_list_curr+demo_col_list)
-=======
-    data_pheno = data_unrelated[pheno_list+demo_col_list+dep_col_list+icd10_col_list].copy()
-    data_pheno = data_pheno.drop(data_train.index).dropna()
->>>>>>> origin/master
     pheno_name = pheno_type.replace(" ", "-")
     data_pheno.to_csv(Path(args.out_dir, f"ukb_extracted_data_{pheno_name}.csv"))

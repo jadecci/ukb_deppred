@@ -38,12 +38,7 @@ def plot_dendrogram(model: FeatureAgglomeration, labels: np.ndarray, outfile: Pa
     linkage_mat = np.column_stack([model.children_, model.distances_, counts]).astype(float)
 
     dendro_res = dendrogram(
-<<<<<<< HEAD
         linkage_mat, orientation="left", labels=labels, leaf_font_size=8)
-=======
-        linkage_mat, orientation="left", labels=labels, leaf_font_size=8,
-        color_threshold=0.75*max(linkage_mat[:, 2]))
->>>>>>> origin/master
     plt.tight_layout()
     plt.savefig(outfile)
     plt.close()
@@ -56,11 +51,8 @@ parser = argparse.ArgumentParser(
 parser.add_argument("data_dir", type=Path, help="Absolute path to input data directory")
 parser.add_argument("field_pheno", type=Path, help="Absolute path to selected phenotype fields csv")
 parser.add_argument("field_comp", type=Path, help="Absolute path to selected composite fields csv")
-<<<<<<< HEAD
 parser.add_argument(
     "field_demo", type=Path, help="Absolute path to selected sociodemographics fields csv")
-=======
->>>>>>> origin/master
 parser.add_argument("field_dep", type=Path, help="Absolute path to selected depression fields csv")
 parser.add_argument("out_dir", type=Path, help="Absolute path to output data directory")
 parser.add_argument("res_dir", type=Path, help="Absolute path to output cluster results directory")
@@ -68,7 +60,6 @@ parser.add_argument("img_dir", type=Path, help="Absolute path to output images d
 args = parser.parse_args()
 
 args.out_dir.mkdir(parents=True, exist_ok=True)
-<<<<<<< HEAD
 args.res_dir.mkdir(parents=True, exist_ok=True)
 args.img_dir.mkdir(parents=True, exist_ok=True)
 train_file = Path(args.data_dir, "ukb_extracted_data_train.csv")
@@ -95,7 +86,6 @@ for col in data_head.columns:
 # Hierarchical clustering in training set
 clusters = {"female": {}, "male": {}}
 data_train = pd.read_csv(train_file, usecols=list(train_dtypes.keys()), dtype=train_dtypes)
-=======
 args.img_dir.mkdir(parents=True, exist_ok=True)
 
 # Data fields to read and/or write
@@ -109,7 +99,6 @@ dtypes.update({col: "Int64" for col in dep_col_list})
 # Hierarchical clustering in training set
 data_train = pd.read_csv(Path(args.data_dir, "ukb_extracted_data_train.csv"))
 clusters = {"female": {}, "male": {}}
->>>>>>> origin/master
 for gender_ind, gender in enumerate(["female", "male"]): # female, male
     data_train_curr = data_train.loc[data_train["31-0.0"] == gender_ind].copy()
     data_train_curr_std = StandardScaler().fit_transform(data_train_curr[dep_col_list])
@@ -127,7 +116,6 @@ pd.DataFrame(clusters).to_csv(Path(args.res_dir, "ukb_dep_clusters.csv"))
 
 # Compute sum scores in test set
 for pheno_type, pheno_col_list in pheno_cols.items():
-<<<<<<< HEAD
     test_dtypes_curr = test_dtypes.copy()
     test_dtypes_curr.update({col: float for col in pheno_col_list})
     if pheno_type in comp_cols.keys():
@@ -136,7 +124,6 @@ for pheno_type, pheno_col_list in pheno_cols.items():
     test_file = Path(args.data_dir, f"ukb_extracted_data_{pheno_name}.csv")
     data_test = pd.read_csv(
         test_file, usecols=list(test_dtypes_curr.keys()), dtype=test_dtypes_curr, index_col="eid")
-=======
     pheno_name = pheno_type.replace(" ", "-")
     pheno_name = pheno_name.replace("/", "-")
     dtypes_pheno = dtypes.copy()
@@ -144,7 +131,6 @@ for pheno_type, pheno_col_list in pheno_cols.items():
     data_test = pd.read_csv(
         Path(args.data_dir, f"ukb_extracted_data_{pheno_name}.csv"),
         usecols=list(dtypes_pheno.keys()), dtype=dtypes_pheno, index_col="eid")
->>>>>>> origin/master
 
     for gender_ind, gender in enumerate(["female", "male"]):
         data_test_gender = data_test.loc[data_test["31-0.0"] == gender_ind].copy()
