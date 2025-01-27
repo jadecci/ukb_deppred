@@ -1,0 +1,7 @@
+[submodule "replication/ukbb_parser"]
+	path = replication/ukbb_parser
+	url = git@github.com:USC-IGC/ukbb_parser.git
+	datalad-url = git@github.com:USC-IGC/ukbb_parser.git
+[submodule "replication/ukbb_parser"]
+	path = replication/ukbb_parser
+	url = git@github.com:USC-IGC/ukbb_parser.git
