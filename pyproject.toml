@@ -7,7 +7,7 @@ name = "ukb_deppred"
 authors = [
     {name = "Jianxiao Wu", email = "j.wu@fz-juelich.de"}
 ]
-description = "Depression prediction in UK Biobank"
+description = "Depression analysis in UK Biobank"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.9"
 keywords = ["neuroimaging", "multimodal", "machine learning", "depression"]
@@ -21,16 +21,14 @@ dependencies = [
     "nipype ~= 1.8.5",
     "numpy ~= 2.0",
     "pandas ~= 2.2.2",
-    "scipy ~= 1.14.0",
+    "scipy ~= 1.15.0",
     "scikit-learn ~= 1.5.1",
     "tables ~= 3.10.0",
     "Pillow ~= 11.1.0",
     "semopy ~=2.3.11",
+    "graphviz ~= 0.20.3",
 ]
 dynamic = ["version"]
-
-[project.scripts]
-ukb_deppred = "ukb_deppred.main:main"
 
 [project.urls]
 repository = "https://github.com/jadecci/ukb_deppred"
@@ -38,6 +36,3 @@ repository-gin = "https://gin.g-node.org/jadecci/ukb_deppred"
 
 [tool.setuptools]
 packages = ["ukb_deppred"]
-
-[tool.setuptools.dynamic]
-version = {attr = "ukb_deppred.VERSION"}
