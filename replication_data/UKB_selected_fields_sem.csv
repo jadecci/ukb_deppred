@@ -1,0 +1,13 @@
+Type,Data field,Field description,Field short name
+Abdom comp,22410-2.0,Total trunk fat volume,TrunkFat
+Abdom comp,22432-2.0,Total abdominal adipose tissue index,AbdomAdipose
+Abdom comp,22408-2.0,Abdominal subcutaneous adipose tissue volume (ASAT),ASAT
+Blood biochem,30710-0.0,C-reactive protein,CRP
+Blood biochem,30760-0.0,HDL cholesterol,HDLCholestrol
+Blood biochem,30870-0.0,Triglycerides,Triglyceride
+Blood count 2,30140-2.0,Neutrophill count,Neutrophill
+Blood count 2,30000-2.0,White blood cell (leukocyte) count,Leukocyte
+Blood count 2,30080-2.0,Platelet count,Platelet
+NMR metabol,23634-0.0,Phospholipids to Total Lipids in Large HDL percentage,PhospholipidsLHDL
+NMR metabol,23454-0.0,Monounsaturated Fatty Acids to Total Fatty Acids percentage,Monounsaturated
+NMR metabol,23597-0.0,Free Cholesterol to Total Lipids in Medium VLDL percentage,FreeCholesterolMVLDL

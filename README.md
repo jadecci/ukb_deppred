@@ -14,7 +14,11 @@ Then set up the project virtual environment:
 python3 -m venv ~/.venvs/ukb_deppred
 source ~/.venvs/ukb_deppred/bin/activate
 datalad clone git@github.com:jadecci/ukb_deppred.git ${project_dir}/ukb_deppred
-python3 -m pip install ${project_dir}/ukb_deppred
+python3 -m pip install -r ${project_dir}/ukb_deppred/requirements.txt
 ```
 
 ### 2. Data Extraction
+
+```bash
+python3 ${project_dir}/ukb_deppred/ukbdep_extract_data.py 
+```
