@@ -37,6 +37,15 @@ python3 ukb_deppred/ukbdep_cluster.py --data_dir results/extracted_data \
 
 ### 3. Association analyses
 
+Association between sociodemographic factors and depressive sum scores:
+
+```bash
+python3 ukb_deppred/ukbdep_sociodemo.py \
+  --data_csv results/extracted_data/ukb_data_Blood-count_clusters.csv \
+  --sel_csv ukb_deppred/replication_data/UKB_selected_fields_pheno.csv \
+  --img_dir results/plots
+```
+
 Correlation between all depressive sum scores and all body/brain biomarkers:
 
 ```bash
@@ -58,8 +67,17 @@ python3 ukb_deppred/plot_scripts/ukbdep_corr_brain.py \
   --img_dir results/raw_plots
 ```
 
-Association between sociodemographic factors and depressive sum scores:
+Structural equation modelling (SEM) of top body biomarkers:
 
 ```bash
-python3 ukb_deppred/plot_scripts/ukbdep_sociodemo.py
+python3 ukb_deppred/ukbdep_sem_body.py --data_dir results/extracted_data \
+  --corr_dir results/corr_dep --out_dir results/sem --img_dir results/raw_plots
+```
+
+Comorbidity analysis:
+
+```bash
+python3 ukb_deppred/ukbdep_comorbid.py --data_dir results/extracted_data \
+  --icd_code_csv ukb_deppred/replication_data/icd10_level_map.csv \
+  --out_dir results/comorbid --img_dir results/plots
 ```

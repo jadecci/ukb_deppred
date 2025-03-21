@@ -100,6 +100,7 @@ fdr = multipletests(data_corr["p"], method="fdr_bh")
 data_corr_fdr = data_corr.loc[fdr[0]]
 data_corr_fdr.to_csv(Path(args.out_dir, "ukb_dep_corr_pheno_fdr.csv"))
 
+# Plot all significant correlations
 with sns.plotting_context(context="paper", font_scale=1.5):
     g = sns.catplot(
         kind="strip", data=data_corr_fdr, x="r", y="Type", col="Gender", hue="Depressive score",
@@ -108,3 +109,16 @@ with sns.plotting_context(context="paper", font_scale=1.5):
     for ax in g.axes.flat:
         ax.axvline(color="lightgray", linestyle="--")
 plt.savefig(Path(args.img_dir, "ukb_dep_corr_pheno.png", bbox_inches="tight", dpi=500))
+
+# Save top 3 biomarkers for somatic symptoms in each body category
+# Use the latest visit with sufficient number of subjects
+for col_type in ["Abdom comp", "Blood biochem", "Blood count 2", "NMR metabol 1"]:
+    pheno_name = col_type.replace(" ", "-")
+    data_marker = data_corr_fdr.loc[
+        (data_corr_fdr["Type"] == col_type)
+        & (data_corr_fdr["Depressive score field"] == "Sum score (cluster 2)")]
+    data_sort = data_marker.sort_values(by="Absolute r", axis="index", ascending=False)
+    data_top = data_sort.head(3)
+    if len(np.unique(data_top["Data field"])) < 3:
+        data_top = data_sort.head(4)
+    data_top.to_csv(Path(args.out_dir, f"ukb_dep_corr_somatic_{pheno_name}_fdr.csv"))
