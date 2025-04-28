@@ -93,6 +93,9 @@ data_diagn = pd.concat([
     data_test, pd.DataFrame(mm_diagn),
     pd.DataFrame(dep_diagn).any(axis="columns").astype(float).rename("Depression")], axis="columns")
 
+print(data_diagn.loc[data_diagn["Depression"] == 0].shape)
+print(data_diagn.loc[data_diagn["Depression"] == 1].shape)
+
 # t test for depression patients and control separately
 data_t = {}
 for dep_diagn in [0, 1]:

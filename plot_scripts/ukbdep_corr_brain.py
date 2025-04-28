@@ -49,10 +49,8 @@ for dep_i, dep in enumerate(dep_scores):
 
         for wm in wm_markers:
             data_marker = data_curr.loc[data_curr["Field description"].str.contains(f"Mean {wm}")]
-            data_sort = data_marker.sort_values(by="Absolute r", axis="index", ascending=False)
-            data_top = data_sort.head(3)
             vol_curr = np.zeros(jhu_vol.shape)
-            for _, data_row in data_top.iterrows():
+            for _, data_row in data_marker.iterrows():
                 wm_region = data_row["Field description"].split("in ")[1]
                 wm_region_val = jhu_lut["Atlas value"].loc[jhu_lut["Brain region"] == wm_region]
                 vol_curr[np.where(jhu_vol == wm_region_val.values[0])] = data_row["r"]
@@ -70,12 +68,10 @@ for dep_i, dep in enumerate(dep_scores):
     for gender in genders:
         data_curr = data_corr_gmv.loc[
             (data_corr_gmv["Depressive score field"] == dep) & (data_corr_gmv["Gender"] == gender)]
-        data_sort = data_curr.sort_values(by="Absolute r", axis="index", ascending=False)
-        data_top = data_sort.head(3)
 
         fs_surf_l = np.zeros(l_annot.shape)
         fs_surf_r = np.zeros(r_annot.shape)
-        for _, data_row in data_top.iterrows():
+        for _, data_row in data_curr.iterrows():
             fs_region = data_row["Field description"].split("Volume of ")[1]
             if "left" in fs_region:
                 fs_region_val = fs_lut["Atlas value"].loc[fs_lut["Left brain region"] == fs_region]

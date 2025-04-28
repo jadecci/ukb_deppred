@@ -19,7 +19,7 @@ parser.add_argument("--out_dir", type=Path, help="Absolute path to output direct
 args = parser.parse_args()
 
 field_dict = {"Diagn ICD10": [], "Death record": [], "Dep score": []}
-col_dtypes = {"eid": str}
+col_dtypes = {"eid": str, "31-0.0": float}
 args.img_dir.mkdir(parents=True, exist_ok=True)
 args.out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -52,7 +52,7 @@ data_test = dict.fromkeys(col_type_test)
 for col_type in col_type_test:
     col_list_curr = (
             field_dict[col_type] + field_dict["Brain GMV"] + field_dict["Brain WM"]
-            + field_dict["Dep score"] + ["eid", "31-0.0"])
+            + field_dict["Dep score"] + ["31-0.0", "eid"])
     col_dtype_curr = {key: col_dtypes[key] for key in col_list_curr}
     pheno_name = col_type.replace(" ", "-")
     data_test[col_type] = pd.read_csv(
@@ -86,12 +86,12 @@ for col_type, data_test_curr in data_test.items():
         for dep_col in field_dict["Dep score"]:
             for gender_i, gender in enumerate(["female", "male"]):
                 ind = f"{pheno_col}-{dep_col}-{gender}"
-                data_gender = data_test_curr.loc[data_test_curr["31-0.0"] == gender_i]
-                r, p = pearsonr(data_gender[pheno_col], data_gender[dep_col])
+                data_curr = data_test_curr.loc[data_test_curr["31-0.0"] == gender_i]
+                r, p = pearsonr(data_curr[pheno_col], data_curr[dep_col])
                 data_corr[ind] = {
                     "Type": col_type, "Data field": pheno_col, "Depressive score field": dep_col,
-                    "Gender": gender, "r": r, "p": p, "Absolute r": np.abs(r),
-                    "Field description": field_desc, "Depressive score": dep_desc[dep_col]}
+                    "r": r, "p": p, "Absolute r": np.abs(r), "Field description": field_desc,
+                    "Depressive score": dep_desc[dep_col], "Gender": gender}
 data_corr = pd.DataFrame(data_corr).T
 data_corr.to_csv(Path(args.out_dir, "ukb_dep_corr_pheno.csv"))
 
@@ -103,9 +103,10 @@ data_corr_fdr.to_csv(Path(args.out_dir, "ukb_dep_corr_pheno_fdr.csv"))
 # Plot all significant correlations
 with sns.plotting_context(context="paper", font_scale=1.5):
     g = sns.catplot(
-        kind="strip", data=data_corr_fdr, x="r", y="Type", col="Gender", hue="Depressive score",
-        palette=["darkseagreen", "pink"], linewidth=1, jitter=False, dodge=True, height=8,
-        aspect=0.7, size=10)
+        kind="strip", data=data_corr_fdr, x="r", y="Type", hue="Depressive score", col="Gender",
+        hue_order=[f"Depressive mood\nsymptoms", f"Depressive somatic\nsymptoms"],
+        palette=["darkseagreen", "pink"], jitter=False, dodge=True, height=8, aspect=0.7, size=10,
+        linewidth=1)
     for ax in g.axes.flat:
         ax.axvline(color="lightgray", linestyle="--")
 plt.savefig(Path(args.img_dir, "ukb_dep_corr_pheno.png", bbox_inches="tight", dpi=500))

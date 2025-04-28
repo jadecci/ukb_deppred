@@ -48,8 +48,12 @@ for col_type in ["Abdom comp", "Blood biochem", "Blood count 2", "NMR metabol 1"
             desc += f"{col_names[col]} ~~ {col_names[data_corr[col_j]]}\n"
 
     # Structural equation modelling (SEM) for each gender separately
-    for gender_i, gender in enumerate(["female", "male"]):
-        data_curr = StandardScaler().fit_transform(data_test.loc[data_test["31-0.0"] == gender_i])
+    for gender_i, gender in enumerate(["female", "male", "both"]):
+        if gender == "both":
+            data_curr = StandardScaler().fit_transform(data_test)
+        else:
+            data_curr = StandardScaler().fit_transform(
+                data_test.loc[data_test["31-0.0"] == gender_i])
         data_curr = pd.DataFrame(data_curr, columns=data_test.columns)
         model = Model(desc)
         model.fit(data_curr)
