@@ -4,3 +4,4 @@
 :** annex.largefiles=(largerthan=100kb)
 **/.git* annex.largefiles=nothing
 *.py annex.largefiles=nothing
+replication_data/* annex.largefiles=nothing
