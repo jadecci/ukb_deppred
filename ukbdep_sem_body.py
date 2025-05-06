@@ -23,33 +23,34 @@ for col_type in ["Abdom comp", "Blood biochem", "Blood count 2", "NMR metabol 1"
     # Data fields of top 3 biomarker
     pheno_name = col_type.replace(" ", "-")
     data_corr = pd.read_csv(
-            Path(args.corr_dir, f"ukb_dep_corr_somatic_{pheno_name}_fdr.csv"),
+            Path(args.corr_dir, f"ukb_dep_corr_somatic_{pheno_name}_fdr_mixed.csv"),
             usecols=["Data field"], dtype=str).squeeze().to_list()
     data_corr = list(set(data_corr))
 
     # Test data
-    col_dtype = {"eid": str, "31-0.0": float, "Sum score (cluster 2)": float}
+    col_dtype = {"eid": str, "31-0.0": float, "21003-2.0": float, "Sum score (cluster 2)": float}
     col_dtype.update({key: float for key in data_corr})
     data_test_curr = pd.read_csv(
         Path(args.data_dir, f"ukb_data_{pheno_name}_clusters.csv"), usecols=list(col_dtype.keys()),
         dtype=col_dtype)
 
     # Rename columns
-    col_names = {"Sum score (cluster 2)": "DepressiveSomatic"}
+    col_names = {"Sum score (cluster 2)": "DepressiveSomatic", "21003-2.0": "Age"}
     col_names.update({key: key.split("-")[0] for key in data_corr})
     data_test = data_test_curr.rename(columns=col_names)
 
     # Model description
-    desc = ""
+    desc = "DepressiveSomatic ~ Age\n"
     for col_i, col in enumerate(data_corr):
         desc += f"{col_names[col]} ~ DepressiveSomatic\n"
         desc += f"DepressiveSomatic ~ {col_names[col]}\n"
         for col_j in range(col_i+1, len(data_corr)):
             desc += f"{col_names[col]} ~~ {col_names[data_corr[col_j]]}\n"
+        desc += f"Age ~~ {col_names[col]}\n"
 
     # Structural equation modelling (SEM) for each gender separately
-    for gender_i, gender in enumerate(["female", "male", "both"]):
-        if gender == "both":
+    for gender_i, gender in enumerate(["female", "male", "mixed"]):
+        if gender == "mixed":
             data_curr = StandardScaler().fit_transform(data_test)
         else:
             data_curr = StandardScaler().fit_transform(

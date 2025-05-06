@@ -12,13 +12,14 @@ parser = argparse.ArgumentParser(
 parser.add_argument("--raw_tsv", type=Path, help="Absolute path to UK Biobank raw data tsv file")
 parser.add_argument("--sel_csv", type=Path, help="Absolute path to table of selected fields")
 parser.add_argument("--wd_csv", type=Path, help="Absolute path to list of withdrawn subjects")
+parser.add_argument("--neu_code", type=Path, help="Absolute path to ICD10 neurological code")
 parser.add_argument("--out_dir", type=Path, help="Absolute path to output directory")
 args = parser.parse_args()
 
 encoding = "ISO-8859-1"
 chunksize = 1000
 field_dict = {"Diagn ICD10": [], "Death record": []}
-col_dtypes = {"eid": str}
+col_dtypes = {"eid": str, "26521-2.0": float}
 excludes = {}
 args.out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -73,6 +74,19 @@ all_data = all_data.drop(wd_sub, errors="ignore")
 all_data.to_csv(all_data_file)
 print(f"Subjects with non-retracted consent: N = {all_data.shape[0]}")
 
+# Remove subjects with "do not know / prefer not to answer" code (for depressive symptoms)
+for col_id, exclude_list in excludes.items():
+    if col_id in field_dict["Dep sympt"]:
+        for exclude in exclude_list:
+            all_data = all_data.loc[all_data[col_id] != exclude]
+print(f"Subjects with valid code for depressive symptoms: N = {all_data.shape[0]}")
+# Remove subjects with "do not know / prefer not to answer" code (for sociodemographic items)
+for col_id, exclude_list in excludes.items():
+    if col_id in field_dict["Sociodemo"]:
+        for exclude in exclude_list:
+            all_data = all_data.loc[all_data[col_id] != exclude]
+print(f"Subjects with valid code for sociodemographic items: N = {all_data.shape[0]}")
+
 # Remove subjects who reported no symptoms
 data_remove = all_data.copy()
 for _, field_df_row in fields.iterrows():
@@ -85,12 +99,34 @@ for _, field_df_row in fields.iterrows():
 all_data = all_data.drop(data_remove.index)
 print(f"Subjects who reported at least one symptom: N = {all_data.shape[0]}")
 
-# Remove subjects with "do not know / prefer not to answer" code (for depressive symptoms)
-for col_id, exclude_list in excludes.items():
-    if col_id in field_dict["Dep sympt"]:
-        for exclude in exclude_list:
-            all_data = all_data.loc[all_data[col_id] != exclude]
-print(f"Subjects with valid code for depressive symptoms: N = {all_data.shape[0]}")
+# Remove subjects with neurological conditions
+neu_code_pd = pd.read_csv(args.neu_code)
+neu_code = {}
+neu_groups = [
+    "Parkinsons disease (PD)", "Dementia/alzheimers/cognitive impairment (AD)",
+    "Mutiple sclerosis (MS)", "Epilepsy"]
+neu_diagn = {"All": {}} | {neu_group: {} for neu_group in neu_groups}
+for col_name, col in neu_code_pd.items():
+    neu_code[col_name] = col.dropna().to_list()
+all_neu_code = [code for code_list in neu_code.values() for code in code_list]
+for data_i, data_row in all_data.iterrows():
+    code_list = []
+    for col in field_dict["Diagn ICD10"]:
+        if data_row[col] != "" and data_row[col] in all_neu_code:
+            code_list.append(data_row[col])
+    neu_diagn["All"][data_i] = 1 if code_list else 0
+    for neu_group in neu_groups:
+        intersect = list(set(code_list).intersection(neu_code[neu_group]))
+        neu_diagn[neu_group][data_i] = 1 if intersect else 0
+for neu_group in neu_groups:
+    diagn_data = all_data.loc[pd.Series(neu_diagn[neu_group]) == 1]
+    print(f"Subjects with {neu_group}: N = {diagn_data.shape[0]}")
+all_data = all_data.loc[pd.Series(neu_diagn["All"]) == 0]
+print(f"Subjects without neurological conditions: N = {all_data.shape[0]}")
+
+# Normalise GMV by subject-wise TIV
+all_data[field_dict["Brain GMV"]] = all_data[field_dict["Brain GMV"]].div(
+    all_data["26521-2.0"], axis="index")
 
 # Define test set for each phenotype category, and the remaining as training set
 field_incl = field_dict["Diagn ICD10"] + field_dict["Death record"]

@@ -9,7 +9,7 @@ import seaborn as sns
 
 
 def plot(
-        data: pd.DataFrame, y_col: str, ylabel: str, ytick: list, yticklabel: list, x_cols: list,
+        data: pd.DataFrame, y_col: str, ytick: list | None, yticklabel: list, x_cols: list,
         out_name: str, plot_type: str):
     dep_desc = [f"Depressive mood symptoms", f"Depressive somatic symptoms"]
     f, ax = plt.subplots(nrows=1, ncols=2, sharex=False, sharey=True, figsize=(10, 3))
@@ -18,15 +18,15 @@ def plot(
             if plot_type == "box":
                 sns.boxplot(
                     data, y=y_col, x=x, orient="h", ax=ax[x_i], color="w", linecolor="k",
-                    dodge=False)
+                    dodge=False, order=yticklabel)
             elif plot_type == "reg":
                 sns.regplot(
                     data, y=y_col, x=x, ax=ax[x_i], marker="x", scatter_kws={"color": ".2"},
                     line_kws={"color": "red"})
                 r, p = pearsonr(data[y_col].astype(float), data[x].astype(float))
                 ax[x_i].set_title(f"R = {r:.4f}, p = {p:.4f}")
+                ax[x_i].set_yticks(ytick, labels=yticklabel)
             ax[x_i].set(xlabel=dep_desc[x_i], ylabel="")
-            ax[x_i].set_yticks(ytick, labels=yticklabel)
     f.savefig(Path(args.img_dir, f"ukb_dep_{out_name}.png"), bbox_inches="tight", dpi=500)
     plt.close(f)
 
@@ -68,30 +68,38 @@ for col_id, exclude_list in excludes.items():
     for exclude in exclude_list:
         data_test = data_test.loc[data_test[col_id] != exclude]
 
-# boxplot: gender, education
-plot(data_test, "31-0.0", "Gender", [0, 1], ["Female", "Male"], dep_score, "gender", "box")
-yticks_l = [
-    "College or University degree", "A levels/AS levels or equivalent",
-    "O levels/GCSEs or equivalent", "CSEs or equivalent", "NVQ or NHD or HNC or equivalent",
-    "Other professional qualifications"]
-plot(data_test, "6138-2.0", "Education", [1, 2, 3, 4, 5, 6], yticks_l, dep_score, "educ", "box")
+# boxplot: gender
+gender_dict = {0: "Female", 1: "Male"}
+data_test = data_test.assign(gender=data_test["31-0.0"].apply(lambda x: gender_dict.get(x)))
+plot(data_test, "gender", None, ["Female", "Male"], dep_score, "gender", "box")
 
-# regplot: household income, age
-yticks = [1, 2, 3, 4, 5]
-yticks_l = [
-    "Less than 18,000", "18,000 to 30,999", "31,000 to 51,999", "52,000 to 100,000",
-    "Greater than 100,000"]
-plot(data_test, "738-2.0", "Household income", yticks, yticks_l, dep_score, "income", "reg")
+# boxplot: education
+educ_dict = {
+    -7: "None of the above", 1: "College or University degree",
+    2: "A levels/AS levels or equivalent", 3: "O levels/GCSEs or equivalent",
+    4: "CSEs or equivalent", 5: "NVQ or NHD or HNC or equivalent",
+    6: "Other professional qualifications"}
+data_test = data_test.assign(educ=data_test["6138-2.0"].apply(lambda x: educ_dict.get(x)))
+yticks_l = [educ_dict[i] for i in [1, 2, 3, 4, 5, 6, -7]]
+plot(data_test, "educ", None, yticks_l, dep_score, "educ", "box")
+
+# regplot: household income
+income_dict = {
+    1: "Less than 18,000", 2: "18,000 to 30,999", 3: "31,000 to 51,999", 4: "52,000 to 100,000",
+    5: "Greater than 100,000"}
+data_test = data_test.assign(income=data_test["738-2.0"].apply(lambda x: income_dict.get(x)))
+yticks_l = [income_dict[i] for i in [1, 2, 3, 4, 5]]
+plot(data_test, "income", None, yticks_l, dep_score, "income", "box")
+
+# regplot: age
 yticks_l = ["50", "60", "70", "80"]
 data_alive = data_test.loc[np.isnan(data_test["40023-0.0"])]
-plot(data_alive, "21003-2.0", "Age",[50, 60, 70, 80], yticks_l, dep_score, "age", "reg")
+plot(data_alive, "21003-2.0", [50, 60, 70, 80], yticks_l, dep_score, "age", "reg")
 
 # regplot: age by age groups
-yticks = [45, 50, 55, 60]
 yticks_l = ["45", "50", "55", "60"]
 data_age_low = data_alive.loc[data_alive["21003-2.0"] < 60]
-plot(data_age_low, "21003-2.0", "Age (< 60)", yticks, yticks_l, dep_score, "age_low", "reg")
-yticks = [60, 65, 70, 75, 80]
+plot(data_age_low, "21003-2.0", [45, 50, 55, 60], yticks_l, dep_score, "age_low", "reg")
 yticks_l = ["60", "65", "70", "75", "80"]
 data_age_high = data_alive.loc[data_alive["21003-2.0"] >= 60]
-plot(data_age_high, "21003-2.0", "Age (>= 60)", yticks, yticks_l, dep_score, "age_high", "reg")
+plot(data_age_high, "21003-2.0", [60, 65, 70, 75, 80], yticks_l, dep_score, "age_high", "reg")
