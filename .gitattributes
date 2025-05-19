@@ -1,7 +1,8 @@
 * annex.backend=MD5E
-**/.tsv annex.largefiles=anything
-**/.csv annex.largefiles=anything
-:** annex.largefiles=(largerthan=100kb)
-**/.git* annex.largefiles=nothing
+**/*.txt annex.largefiles=nothing
+**/*.md annex.largefiles=nothing
+**/*.tsv annex.largefiles=nothing
+**/*.csv annex.largefiles=nothing
+**/*.git* annex.largefiles=nothing
 *.py annex.largefiles=nothing
 replication_data/* annex.largefiles=nothing

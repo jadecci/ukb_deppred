@@ -10,6 +10,5 @@ plotly ~= 6.0.0
 scipy ~= 1.15.0
 scikit-learn ~= 1.5.1
 seaborn ~= 0.13.2
-semopy ~=2.3.11
 statsmodels ~= 0.14.4
 tables ~= 3.10.0
