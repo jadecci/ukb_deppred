@@ -17,10 +17,11 @@ parser.add_argument("--sel_csv", type=Path, help="Absolute path to table of sele
 parser.add_argument("--img_dir", type=Path, help="Absolute path to output plots directory")
 args = parser.parse_args()
 
-field_dict = {"Diagn ICD10": [], "Death record": []}
-col_dtypes = {"eid": str}
+field_dict = {}
+col_dtypes = {"eid": str, "MDD diagnosis": float}
 args.img_dir.mkdir(parents=True, exist_ok=True)
-train_file = Path(args.data_dir, "ukb_data_all.csv")
+# data_file = Path(args.data_dir, "ukb_data_all.csv")
+data_file = Path(args.data_dir, "ukb_data_train.csv")
 
 # Phenotype field information
 field_cols = {
@@ -34,22 +35,13 @@ for _, field_row in fields.iterrows():
         field_dict[field_row["Type"]] = [col_id]
     col_dtypes[col_id] = float
 
-# ICD-10 code
-data_head = pd.read_csv(train_file, nrows=2)
-for col in data_head.columns:
-    if col.split("-")[0] in "41270":
-        field_dict["Diagn ICD10"].append(col)
-        col_dtypes[col] = str
-    if col.split("-")[0] == "40023":
-        field_dict["Death record"].append(col)
-        col_dtypes[col] = float
-
 # Agglomerate depressive symptom features
-data_train = pd.read_csv(
-    train_file, usecols=list(col_dtypes.keys()), dtype=col_dtypes, index_col="eid")
-data_train_std = StandardScaler().fit_transform(data_train[field_dict["Dep sympt"]])
+cols_curr = ["eid"] + field_dict["Dep sympt"]
+col_dtype_curr = {key: item for key, item in col_dtypes.items() if key in cols_curr}
+data = pd.read_csv(data_file, usecols=cols_curr, dtype=col_dtype_curr, index_col="eid")
+data_std = StandardScaler().fit_transform(data[field_dict["Dep sympt"]])
 model = FeatureAgglomeration(n_clusters=2, compute_distances=True)
-model.fit(data_train_std)
+model.fit(data_std)
 
 # Dendrogram
 counts = np.zeros(model.children_.shape[0])
@@ -66,11 +58,11 @@ labels_desc = fields["Field Description"].loc[fields["Field ID"].isin(dep_col_li
 labels_note = fields["Notes"].loc[fields["Field ID"].isin(dep_col_list)].tolist()
 labels = np.array([f"[{note}] {desc}" for desc, note in zip(labels_desc, labels_note)])
 
-colors=["skyblue", "plum", "orange", "mediumturquoise", "gold", "pink", "darkseagreen"]
+colors=["skyblue", "darkseagreen", "pink", "gold", "mediumturquoise", "plum", "orange"]
 set_link_color_palette(colors)
 dendro_res = dendrogram(
     linkage_mat, orientation="left", labels=labels, leaf_font_size=8, above_threshold_color="k",
-    color_threshold=0.5*max(linkage_mat[:, 2]))
+    color_threshold=0.59*max(linkage_mat[:, 2]))
 plt.tight_layout()
 plt.savefig(Path(args.img_dir, "ukb_dep_cluster.png", bbox_inches="tight", dpi=500))
 
@@ -84,20 +76,23 @@ for leaf, color in zip(reversed(dendro_res["leaves"]), reversed(dendro_res["leav
         clusters[cluster_name] = [field_dict["Dep sympt"][leaf]]
     print(cluster_name, color, labels[leaf])
 
-# Apply clustering to test set
-col_type_test = [
-    "Abdom comp", "Blood biochem", "Blood biochem 1", "Blood count", "Blood count 1",
-    "Blood count 2", "NMR metabol", "NMR metabol 1"]
-for col_type in col_type_test:
+# Apply clustering to association sample
+col_type_pheno = [
+    "Abdom comp", "Brain GMV", "Brain WM", "Blood biochem", "Blood count", "NMR metabol"]
+data_sdem = []
+for col_type in col_type_pheno:
     col_list_curr = (
         field_dict[col_type] + field_dict["Dep sympt"] + field_dict["Sociodemo"]
-        + field_dict["Brain GMV"] + field_dict["Brain WM"] + field_dict["Diagn ICD10"]
-        + field_dict["Death record"] + ["eid"])
+        + ["eid", "MDD diagnosis"])
     col_dtype_curr = {key: col_dtypes[key] for key in col_list_curr}
     pheno_name = col_type.replace(" ", "-")
-    data_test = pd.read_csv(
+    data_pheno = pd.read_csv(
         Path(args.data_dir, f"ukb_data_{pheno_name}.csv"), usecols=col_list_curr,
         dtype=col_dtype_curr, index_col="eid")
     for cluster_name, cluster_col_list in clusters.items():
-        data_test[cluster_name] = data_test[cluster_col_list].sum(axis="columns")
-    data_test.to_csv(Path(args.data_dir, f"ukb_data_{pheno_name}_clusters.csv"))
+        data_pheno[cluster_name] = data_pheno[cluster_col_list].sum(axis="columns")
+    data_pheno.to_csv(Path(args.data_dir, f"ukb_data_{pheno_name}_clusters.csv"))
+    data_sdem.append(data_pheno)
+data_sdem = pd.concat(data_sdem, axis="index", join="inner")
+data_sdem = data_sdem.drop_duplicates()
+data_sdem.to_csv(Path(args.data_dir, "ukb_data_sociodemo_clusters.csv"))

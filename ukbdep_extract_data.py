@@ -13,12 +13,13 @@ parser.add_argument("--raw_tsv", type=Path, help="Absolute path to UK Biobank ra
 parser.add_argument("--sel_csv", type=Path, help="Absolute path to table of selected fields")
 parser.add_argument("--wd_csv", type=Path, help="Absolute path to list of withdrawn subjects")
 parser.add_argument("--neu_code", type=Path, help="Absolute path to ICD10 neurological code")
+parser.add_argument("--icd_code_csv", type=Path, help="Absolute path to ICD10 code mapping csv")
 parser.add_argument("--out_dir", type=Path, help="Absolute path to output directory")
 args = parser.parse_args()
 
 encoding = "ISO-8859-1"
 chunksize = 1000
-field_dict = {"Diagn ICD10": [], "Death record": []}
+field_dict = {"Diagn ICD10": []}
 col_dtypes = {"eid": str, "26521-2.0": float}
 excludes = {}
 args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -46,9 +47,6 @@ for col in data_head.columns:
     if col.split("-")[0] in "41270":
         field_dict["Diagn ICD10"].append(col)
         col_dtypes[col] = str
-    if col.split("-")[0] == "40023":
-        field_dict["Death record"].append(col)
-        col_dtypes[col] = float
 
 # Extract all data
 all_data_file = Path(args.out_dir, "ukb_data_all.csv")
@@ -71,7 +69,6 @@ all_data = pd.read_csv(
 print(f"Subjects with all depressive symptom items: N = {all_data.shape[0]}")
 wd_sub = pd.read_csv(args.wd_csv, header=None).squeeze()
 all_data = all_data.drop(wd_sub, errors="ignore")
-all_data.to_csv(all_data_file)
 print(f"Subjects with non-retracted consent: N = {all_data.shape[0]}")
 
 # Remove subjects with "do not know / prefer not to answer" code (for depressive symptoms)
@@ -102,10 +99,7 @@ print(f"Subjects who reported at least one symptom: N = {all_data.shape[0]}")
 # Remove subjects with neurological conditions
 neu_code_pd = pd.read_csv(args.neu_code)
 neu_code = {}
-neu_groups = [
-    "Parkinsons disease (PD)", "Dementia/alzheimers/cognitive impairment (AD)",
-    "Mutiple sclerosis (MS)", "Epilepsy"]
-neu_diagn = {"All": {}} | {neu_group: {} for neu_group in neu_groups}
+neu_diagn = {}
 for col_name, col in neu_code_pd.items():
     neu_code[col_name] = col.dropna().to_list()
 all_neu_code = [code for code_list in neu_code.values() for code in code_list]
@@ -114,37 +108,48 @@ for data_i, data_row in all_data.iterrows():
     for col in field_dict["Diagn ICD10"]:
         if data_row[col] != "" and data_row[col] in all_neu_code:
             code_list.append(data_row[col])
-    neu_diagn["All"][data_i] = 1 if code_list else 0
-    for neu_group in neu_groups:
-        intersect = list(set(code_list).intersection(neu_code[neu_group]))
-        neu_diagn[neu_group][data_i] = 1 if intersect else 0
-for neu_group in neu_groups:
-    diagn_data = all_data.loc[pd.Series(neu_diagn[neu_group]) == 1]
-    print(f"Subjects with {neu_group}: N = {diagn_data.shape[0]}")
-all_data = all_data.loc[pd.Series(neu_diagn["All"]) == 0]
+    neu_diagn[data_i] = 1 if code_list else 0
+all_data = all_data.loc[pd.Series(neu_diagn) == 0]
 print(f"Subjects without neurological conditions: N = {all_data.shape[0]}")
 
 # Normalise GMV by subject-wise TIV
 all_data[field_dict["Brain GMV"]] = all_data[field_dict["Brain GMV"]].div(
     all_data["26521-2.0"], axis="index")
 
-# Define test set for each phenotype category, and the remaining as training set
-field_incl = field_dict["Diagn ICD10"] + field_dict["Death record"]
-field_req = (
-    field_dict["Dep sympt"] + field_dict["Sociodemo"] + field_dict["Brain GMV"]
-    + field_dict["Brain WM"])
-col_type_test = [
-    "Abdom comp", "Blood biochem", "Blood biochem 1", "Blood count", "Blood count 1",
-    "Blood count 2", "NMR metabol", "NMR metabol 1"]
-data_train = all_data.copy()
-for col_type in col_type_test:
-    field_req_curr = field_dict[col_type] + field_req
-    data_curr = all_data[field_req_curr+field_incl].copy()
-    data_test = data_curr.dropna(axis="index", how="any", subset=field_req_curr)
+# Add MDD diagnosis column
+code_map = pd.read_csv(args.icd_code_csv)
+code_list = []
+dep_diagn = {}
+for _, block_row in code_map.loc[code_map["Level"] == 2].iterrows():
+    if block_row["Coding"] in ["F32", "F33", "F34", "F38", "F39"]:
+        if block_row["Selectable"] == "Yes":
+            code_list.append(block_row["Coding"])
+        else:
+            code_next = code_map.loc[code_map["Parent"] == str(block_row["Node"])]
+            for _, code_row in code_next.iterrows():
+                code_list.append(code_row["Coding"])
+for data_i, data_row in all_data.iterrows():
+    code_list_curr = []
+    for col in field_dict["Diagn ICD10"]:
+        if data_row[col] != "" and data_row[col] in code_list:
+            code_list_curr.append(data_row[col])
+    dep_diagn[data_i] = 1 if code_list_curr else 0
+all_data["MDD diagnosis"] = pd.Series(dep_diagn)
+print(f"Subjects with MDD diagnosis: N = {all_data.loc[all_data['MDD diagnosis'] == 1].shape[0]}")
+all_data.to_csv(all_data_file)
 
+# Define sample for each phenotype category
+field_req = field_dict["Dep sympt"] + field_dict["Sociodemo"] + ["MDD diagnosis"]
+col_type_pheno = [
+    "Abdom comp", "Brain GMV", "Brain WM", "Blood biochem", "Blood count", "NMR metabol"]
+data_cluster = all_data.copy()
+for col_type in col_type_pheno:
     pheno_name = col_type.replace(" ", "-")
-    data_test.to_csv(Path(args.out_dir, f"ukb_data_{pheno_name}.csv"))
-    print(f"Subjects with all phenotypes for {col_type}: N = {data_test.shape[0]}")
-    data_train = data_train.drop(data_test.index, errors="ignore")
-data_train.to_csv(Path(args.out_dir, "ukb_data_train.csv"))
-print(f"Training set: N = {data_train.shape[0]}")
+    field_req_curr = field_dict[col_type] + field_req
+    data_curr = all_data[field_req_curr].copy()
+    data_pheno = data_curr.dropna(axis="index", how="any", subset=field_req_curr)
+    data_pheno.to_csv(Path(args.out_dir, f"ukb_data_{pheno_name}.csv"))
+    print(f"Subjects with all phenotypes for {col_type}: N = {data_pheno.shape[0]}")
+    data_cluster = data_cluster.drop(data_pheno.index, errors="ignore")
+data_cluster.to_csv(Path(args.out_dir, "ukb_data_cluster.csv"))
+print(f"Training sample: N = {data_cluster.shape[0]}")
