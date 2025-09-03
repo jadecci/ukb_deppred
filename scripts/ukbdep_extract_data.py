@@ -141,7 +141,7 @@ all_data.to_csv(all_data_file)
 # Define sample for each phenotype category
 field_req = field_dict["Dep sympt"] + field_dict["Sociodemo"] + ["MDD diagnosis"]
 col_type_pheno = [
-    "Abdom comp", "Brain GMV", "Brain WM", "Blood biochem", "Blood count", "NMR metabol"]
+    "Body fat", "Brain GMV", "Brain WM", "Blood biochem", "Blood count", "NMR metabol"]
 data_cluster = all_data.copy()
 for col_type in col_type_pheno:
     pheno_name = col_type.replace(" ", "-")

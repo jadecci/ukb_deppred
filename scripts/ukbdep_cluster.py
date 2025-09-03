@@ -78,7 +78,7 @@ for leaf, color in zip(reversed(dendro_res["leaves"]), reversed(dendro_res["leav
 
 # Apply clustering to association sample
 col_type_pheno = [
-    "Abdom comp", "Brain GMV", "Brain WM", "Blood biochem", "Blood count", "NMR metabol"]
+    "Body fat", "Brain GMV", "Brain WM", "Blood biochem", "Blood count", "NMR metabol"]
 data_sdem = []
 for col_type in col_type_pheno:
     col_list_curr = (
